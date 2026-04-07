@@ -6,445 +6,429 @@
 <title>vasavi GMR Kitty ✨</title>
 <script src="/socket.io/socket.io.js"></script>
 <style>
-/* ===== FONTS & RESET ===== */
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 
-/* ===== ANIMATED BG ===== */
+/* ── DEEP SPACE BACKGROUND ── */
 body {
-  font-family:'Nunito',sans-serif;
+  font-family:'Inter',sans-serif;
   min-height:100vh;
-  background:#0a0015;
+  background:#0b0b14;
   color:#fff;
   display:flex;
   align-items:center;
   justify-content:center;
-  overflow-x:hidden;
+  overflow:hidden;
   position:relative;
 }
 
-/* Animated gradient orbs */
-body::before {
-  content:'';
+/* Star field canvas layer */
+#stars-canvas {
   position:fixed;inset:0;
-  background:
-    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(168,85,247,0.35) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 80% 80%, rgba(236,72,153,0.3) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 40% at 50% 50%, rgba(99,102,241,0.2) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 30% at 10% 80%, rgba(6,182,212,0.2) 0%, transparent 60%);
-  animation: bgPulse 8s ease-in-out infinite alternate;
   pointer-events:none;z-index:0;
 }
-@keyframes bgPulse {
-  0%   { opacity:0.7; transform:scale(1) rotate(0deg); }
-  100% { opacity:1;   transform:scale(1.05) rotate(2deg); }
-}
 
-/* Sparkle stars */
-body::after {
-  content:'✦ ✧ ✦ ✧ ✦ ✧ ✦ ✧ ✦ ✧';
-  position:fixed;inset:0;
-  font-size:0.7rem;
-  color:rgba(255,255,255,0.12);
-  display:flex;align-items:flex-start;
-  flex-wrap:wrap;gap:48px;
-  padding:24px;
+/* Warm glow orb behind content — matches screenshot */
+.glow-orb {
+  position:fixed;
+  width:480px;height:380px;
+  background:radial-gradient(ellipse, rgba(180,100,20,0.22) 0%, rgba(120,40,80,0.12) 40%, transparent 70%);
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
   pointer-events:none;z-index:0;
-  animation:twinkle 4s ease-in-out infinite alternate;
+  animation:orbPulse 6s ease-in-out infinite alternate;
 }
-@keyframes twinkle {
-  0%   { opacity:0.3; }
-  100% { opacity:0.8; }
+@keyframes orbPulse {
+  0%  { opacity:0.7; transform:translate(-50%,-50%) scale(1); }
+  100%{ opacity:1;   transform:translate(-50%,-50%) scale(1.1); }
 }
 
-.container{position:relative;z-index:1;max-width:620px;width:100%;padding:24px 18px;}
+/* Purple bloom top-left — matches screenshot */
+.bloom-tl {
+  position:fixed;top:-80px;left:-80px;
+  width:320px;height:320px;
+  background:radial-gradient(ellipse, rgba(120,40,180,0.35) 0%, transparent 70%);
+  pointer-events:none;z-index:0;
+}
 
-/* ===== SCREENS ===== */
+.container {
+  position:relative;z-index:1;
+  max-width:480px;width:100%;
+  padding:24px 20px;
+}
+
+/* ── SCREENS ── */
 .screen{display:none;}
 .screen.active{display:block;}
 
-/* ===== TITLE ===== */
-.game-title{text-align:center;margin-bottom:28px;}
-.game-title h1 {
-  font-size:2.2rem;font-weight:900;
-  background:linear-gradient(135deg,#f9a8d4,#c084fc,#818cf8,#67e8f9);
-  background-size:300% 300%;
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  animation:shimmerText 4s ease-in-out infinite;
-  letter-spacing:2px;text-transform:uppercase;
-  filter:drop-shadow(0 0 20px rgba(192,132,252,0.5));
+/* ── TITLE BLOCK ── */
+.title-icon {
+  text-align:center;font-size:3.2rem;
+  margin-bottom:12px;
+  filter:drop-shadow(0 0 18px rgba(255,180,80,0.5));
+  animation:iconBounce 3s ease-in-out infinite;
 }
-@keyframes shimmerText {
+@keyframes iconBounce {
+  0%,100%{transform:translateY(0);}
+  50%{transform:translateY(-8px);}
+}
+.title-main {
+  text-align:center;
+  font-size:2.4rem;font-weight:900;
+  background:linear-gradient(90deg,#e879f9,#a855f7,#818cf8);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  letter-spacing:-0.5px;margin-bottom:6px;
+}
+.title-sub {
+  text-align:center;
+  font-size:0.78rem;font-weight:700;
+  letter-spacing:3px;text-transform:uppercase;
+  color:#d97706;margin-bottom:28px;
+}
+
+/* ── BUTTONS ── */
+.btn-create {
+  display:block;width:100%;
+  padding:17px 20px;border:none;
+  background:linear-gradient(90deg,#ec4899,#a855f7,#818cf8);
+  background-size:200% 100%;
+  color:#fff;font-family:'Inter',sans-serif;
+  font-size:0.88rem;font-weight:800;
+  letter-spacing:2px;text-transform:uppercase;
+  border-radius:14px;cursor:pointer;
+  margin-bottom:12px;
+  box-shadow:0 0 28px rgba(168,85,247,0.45),0 4px 16px rgba(0,0,0,0.4);
+  transition:all 0.2s;
+  position:relative;overflow:hidden;
+  animation:btnShimmerAnim 4s ease-in-out infinite;
+}
+@keyframes btnShimmerAnim {
   0%{background-position:0% 50%;}
   50%{background-position:100% 50%;}
   100%{background-position:0% 50%;}
 }
-.game-title .sub {
-  margin-top:6px;font-size:0.85rem;letter-spacing:2px;
-  color:rgba(255,255,255,0.55);
+.btn-create:hover{transform:translateY(-2px);box-shadow:0 0 40px rgba(168,85,247,0.65),0 6px 20px rgba(0,0,0,0.4);}
+.btn-create::after{
+  content:'';position:absolute;top:0;left:-80%;width:60%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);
+  transform:skewX(-20deg);
+  animation:sweep 3s ease-in-out infinite;
 }
+@keyframes sweep{0%{left:-80%;}60%{left:140%;}100%{left:140%;}}
 
-/* ===== GLOWING CARD ===== */
-.card {
-  background:linear-gradient(135deg,rgba(168,85,247,0.1),rgba(236,72,153,0.08),rgba(99,102,241,0.1));
-  border:1px solid rgba(255,255,255,0.12);
-  border-radius:24px;
-  padding:26px;
-  backdrop-filter:blur(20px);
-  -webkit-backdrop-filter:blur(20px);
-  margin-bottom:18px;
-  box-shadow:0 0 40px rgba(168,85,247,0.15), 0 8px 32px rgba(0,0,0,0.5);
-  position:relative;overflow:hidden;
-}
-/* Shiny card sweep */
-.card::before {
-  content:'';
-  position:absolute;top:-100%;left:-60%;
-  width:40%;height:300%;
-  background:linear-gradient(105deg,transparent,rgba(255,255,255,0.06),transparent);
-  animation:cardSweep 5s ease-in-out infinite;
-  pointer-events:none;
-}
-@keyframes cardSweep {
-  0%{left:-60%;}
-  60%{left:160%;}
-  100%{left:160%;}
-}
-
-/* ===== INPUTS ===== */
-input[type=text],input[type=number]{
-  width:100%;padding:13px 18px;margin-bottom:12px;
-  background:rgba(255,255,255,0.07);
-  border:1.5px solid rgba(255,255,255,0.15);
-  border-radius:14px;color:#fff;
-  font-family:'Nunito',sans-serif;font-size:1rem;font-weight:700;
+.btn-join {
+  display:block;width:100%;
+  padding:17px 20px;border:none;
+  background:rgba(255,255,255,0.06);
+  border:1.5px solid rgba(255,255,255,0.12);
+  color:rgba(255,255,255,0.85);font-family:'Inter',sans-serif;
+  font-size:0.88rem;font-weight:800;
+  letter-spacing:2px;text-transform:uppercase;
+  border-radius:14px;cursor:pointer;
+  margin-bottom:12px;
+  backdrop-filter:blur(10px);
+  box-shadow:0 4px 16px rgba(0,0,0,0.3);
   transition:all 0.2s;
 }
-input::placeholder{color:rgba(255,255,255,0.35);}
-input:focus{outline:none;border-color:#c084fc;background:rgba(192,132,252,0.1);box-shadow:0 0 20px rgba(192,132,252,0.2);}
+.btn-join:hover{background:rgba(255,255,255,0.1);border-color:rgba(168,85,247,0.5);transform:translateY(-2px);}
 
-/* ===== BUTTONS ===== */
-button{
+/* Generic action buttons */
+button {
   display:block;width:100%;
   padding:15px 20px;border:none;
-  font-family:'Nunito',sans-serif;font-size:0.92rem;font-weight:900;
-  letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;
-  transition:all 0.2s;border-radius:50px;margin-bottom:10px;
-  position:relative;overflow:hidden;
+  font-family:'Inter',sans-serif;font-size:0.88rem;font-weight:800;
+  letter-spacing:2px;text-transform:uppercase;
+  border-radius:14px;cursor:pointer;
+  transition:all 0.2s;margin-bottom:10px;
+  color:#fff;
 }
 button:last-child{margin-bottom:0;}
+button:hover{transform:translateY(-2px);}
+button:active{transform:translateY(0);}
 
-/* Shimmer sweep on all buttons */
-button::after{
-  content:'';position:absolute;top:0;left:-75%;
-  width:50%;height:100%;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.25),transparent);
-  transform:skewX(-15deg);
-  transition:left 0.4s;
+.btn-start {
+  background:linear-gradient(90deg,#10b981,#059669);
+  box-shadow:0 0 24px rgba(16,185,129,0.4),0 4px 12px rgba(0,0,0,0.3);
+  animation:startPulse 2.5s ease-in-out infinite;
 }
-button:hover::after{left:125%;}
-button:hover{transform:translateY(-3px);filter:brightness(1.1);}
-button:active{transform:translateY(-1px);}
-
-.btn-host{
-  background:linear-gradient(135deg,#7c3aed,#a855f7,#c084fc);
-  color:#fff;
-  box-shadow:0 4px 24px rgba(168,85,247,0.5),0 0 0 1px rgba(255,255,255,0.1) inset;
+@keyframes startPulse{
+  0%,100%{box-shadow:0 0 24px rgba(16,185,129,0.4),0 4px 12px rgba(0,0,0,0.3);}
+  50%{box-shadow:0 0 40px rgba(16,185,129,0.65),0 4px 20px rgba(0,0,0,0.4);}
 }
-.btn-join{
-  background:linear-gradient(135deg,#0891b2,#06b6d4,#67e8f9);
-  color:#0a0015;
-  box-shadow:0 4px 24px rgba(6,182,212,0.5),0 0 0 1px rgba(255,255,255,0.1) inset;
-}
-.btn-start{
-  background:linear-gradient(135deg,#059669,#10b981,#6ee7b7);
-  color:#fff;
-  font-size:1.05rem;padding:16px;
-  border-radius:18px;
-  box-shadow:0 4px 28px rgba(16,185,129,0.5),0 0 0 1px rgba(255,255,255,0.1) inset;
-  animation:pulse 2s ease-in-out infinite;
-}
-@keyframes pulse{
-  0%,100%{box-shadow:0 4px 28px rgba(16,185,129,0.5);}
-  50%{box-shadow:0 4px 40px rgba(16,185,129,0.8),0 0 20px rgba(110,231,183,0.3);}
-}
-.btn-next{
-  background:linear-gradient(135deg,#059669,#10b981,#6ee7b7);
-  color:#fff;border-radius:18px;
-  box-shadow:0 4px 24px rgba(16,185,129,0.4);
-}
-.btn-end{
-  background:linear-gradient(135deg,rgba(127,29,29,0.6),rgba(185,28,28,0.4));
-  border:1.5px solid rgba(248,113,113,0.3);
-  color:#fca5a5;border-radius:18px;
-}
-.btn-back{
-  background:rgba(255,255,255,0.05);
-  border:1.5px solid rgba(255,255,255,0.15);
-  color:rgba(255,255,255,0.5);
-  border-radius:14px;font-size:0.8rem;
-}
+.btn-next{background:linear-gradient(90deg,#10b981,#059669);box-shadow:0 0 20px rgba(16,185,129,0.35);}
+.btn-end {background:rgba(127,29,29,0.5);border:1.5px solid rgba(239,68,68,0.3);color:#fca5a5;}
+.btn-back{background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.45);font-size:0.78rem;letter-spacing:1px;}
 .btn-again{
-  background:linear-gradient(135deg,#7c3aed,#ec4899,#f59e0b);
-  background-size:200% 200%;
-  animation:rainbowBtn 3s ease infinite;
-  color:#fff;border-radius:18px;
-  box-shadow:0 4px 28px rgba(236,72,153,0.4);
-}
-@keyframes rainbowBtn{
-  0%{background-position:0% 50%;}
-  50%{background-position:100% 50%;}
-  100%{background-position:0% 50%;}
+  background:linear-gradient(90deg,#ec4899,#a855f7,#818cf8);
+  background-size:200% 100%;animation:btnShimmerAnim 3s ease-in-out infinite;
+  box-shadow:0 0 28px rgba(168,85,247,0.45);
 }
 
-/* ===== ROOM CODE ===== */
+/* ── INPUTS ── */
+input[type=text],input[type=number]{
+  display:block;width:100%;padding:14px 18px;margin-bottom:12px;
+  background:rgba(255,255,255,0.06);
+  border:1.5px solid rgba(255,255,255,0.1);
+  border-radius:12px;color:#fff;
+  font-family:'Inter',sans-serif;font-size:0.95rem;font-weight:600;
+  transition:all 0.2s;backdrop-filter:blur(8px);
+}
+input::placeholder{color:rgba(255,255,255,0.3);}
+input:focus{outline:none;border-color:rgba(168,85,247,0.6);background:rgba(168,85,247,0.08);box-shadow:0 0 0 3px rgba(168,85,247,0.15);}
+
+/* ── ROOM CODE BOX ── */
 .room-code-box{
   text-align:center;
-  background:linear-gradient(135deg,rgba(192,132,252,0.12),rgba(236,72,153,0.1));
-  border:1.5px solid rgba(192,132,252,0.4);
-  border-radius:20px;padding:20px;margin-bottom:18px;
-  box-shadow:0 0 30px rgba(192,132,252,0.15);
-}
-.room-code-box .rc-label{
-  font-size:0.72rem;color:rgba(255,255,255,0.5);
-  letter-spacing:3px;text-transform:uppercase;
-}
-.room-code-box .rc-code{
-  font-size:3rem;font-weight:900;letter-spacing:12px;
-  background:linear-gradient(135deg,#f9a8d4,#c084fc,#818cf8);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  animation:shimmerText 3s ease infinite;
-  line-height:1.3;margin-top:4px;
-  filter:drop-shadow(0 0 12px rgba(192,132,252,0.4));
-}
-
-/* ===== ROUND HEADER ===== */
-.round-hdr{
-  text-align:center;font-size:0.82rem;font-weight:900;
-  letter-spacing:4px;text-transform:uppercase;margin-bottom:16px;
-  background:linear-gradient(135deg,#c084fc,#818cf8);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-}
-
-/* ===== EMOJI BOX ===== */
-.emoji-box{
-  background:linear-gradient(135deg,rgba(168,85,247,0.12),rgba(236,72,153,0.08),rgba(99,102,241,0.12));
-  border:1.5px solid rgba(255,255,255,0.12);
-  border-radius:24px;padding:28px 20px;
-  text-align:center;font-size:4rem;letter-spacing:12px;
-  margin-bottom:16px;line-height:1.3;
-  box-shadow:0 0 40px rgba(168,85,247,0.2), inset 0 0 30px rgba(255,255,255,0.02);
-  animation:emojiGlow 3s ease-in-out infinite alternate;
+  background:rgba(255,255,255,0.03);
+  border:1.5px solid rgba(168,85,247,0.25);
+  border-radius:18px;padding:20px 16px;margin-bottom:20px;
+  box-shadow:0 0 30px rgba(168,85,247,0.1);
   position:relative;overflow:hidden;
 }
-@keyframes emojiGlow{
-  0%{box-shadow:0 0 30px rgba(168,85,247,0.2);}
-  100%{box-shadow:0 0 50px rgba(236,72,153,0.35),0 0 20px rgba(192,132,252,0.2);}
-}
-.emoji-box::before{
+.room-code-box::before{
   content:'';position:absolute;inset:0;
-  background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,0.04) 50%,transparent 70%);
-  animation:cardSweep 4s ease-in-out infinite;
+  background:linear-gradient(135deg,rgba(168,85,247,0.05),rgba(236,72,153,0.05));
+}
+.rc-label{font-size:0.7rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:6px;}
+.rc-code{
+  font-size:3rem;font-weight:900;letter-spacing:14px;
+  background:linear-gradient(90deg,#e879f9,#a855f7,#818cf8);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 0 12px rgba(168,85,247,0.4));
+  line-height:1.2;
 }
 
-/* ===== HINT PILL ===== */
-.hint-pill{text-align:center;margin-bottom:18px;}
+/* ── GLASS CARD ── */
+.card{
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:20px;padding:22px;
+  backdrop-filter:blur(16px);
+  margin-bottom:16px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.4);
+  position:relative;overflow:hidden;
+}
+.card::before{
+  content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;
+  background:linear-gradient(105deg,transparent,rgba(255,255,255,0.035),transparent);
+  animation:cardSweep 6s ease-in-out infinite;pointer-events:none;
+}
+@keyframes cardSweep{0%{left:-60%;}55%{left:140%;}100%{left:140%;}}
+
+/* ── SECTION LABEL ── */
+.sec-lbl{
+  font-size:0.7rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;
+  color:rgba(168,85,247,0.9);margin-bottom:14px;
+}
+
+/* ── ROUND HEADER ── */
+.round-hdr{
+  text-align:center;font-size:0.78rem;font-weight:800;
+  letter-spacing:4px;text-transform:uppercase;
+  color:rgba(192,132,252,0.85);margin-bottom:14px;
+}
+
+/* ── EMOJI BOX ── */
+.emoji-box{
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:20px;padding:28px 16px;
+  text-align:center;font-size:4rem;letter-spacing:12px;
+  margin-bottom:14px;line-height:1.3;
+  box-shadow:0 0 40px rgba(180,100,20,0.12),inset 0 0 30px rgba(255,255,255,0.01);
+  animation:emojiGlow 4s ease-in-out infinite alternate;
+}
+@keyframes emojiGlow{
+  0%{box-shadow:0 0 30px rgba(168,85,247,0.15);}
+  100%{box-shadow:0 0 50px rgba(236,72,153,0.25),0 0 20px rgba(180,100,20,0.15);}
+}
+
+/* ── HINT PILL ── */
+.hint-pill{text-align:center;margin-bottom:16px;}
 .hint-pill span{
   display:inline-block;
-  background:linear-gradient(135deg,#f59e0b,#fbbf24,#fde68a);
-  color:#1a0010;
-  padding:9px 28px;border-radius:50px;
-  font-weight:900;font-size:0.92rem;letter-spacing:1px;text-transform:uppercase;
-  box-shadow:0 4px 20px rgba(251,191,36,0.45),0 0 0 3px rgba(251,191,36,0.15);
-  animation:hintPulse 2.5s ease-in-out infinite;
+  background:linear-gradient(90deg,#d97706,#f59e0b,#fbbf24);
+  color:#1c0a00;padding:8px 26px;border-radius:50px;
+  font-weight:800;font-size:0.88rem;letter-spacing:1px;text-transform:uppercase;
+  box-shadow:0 0 20px rgba(245,158,11,0.4);
+  animation:hintGlow 2.5s ease-in-out infinite;
 }
-@keyframes hintPulse{
-  0%,100%{box-shadow:0 4px 20px rgba(251,191,36,0.45),0 0 0 3px rgba(251,191,36,0.15);}
-  50%{box-shadow:0 4px 30px rgba(251,191,36,0.7),0 0 0 5px rgba(251,191,36,0.2);}
+@keyframes hintGlow{
+  0%,100%{box-shadow:0 0 20px rgba(245,158,11,0.4);}
+  50%{box-shadow:0 0 32px rgba(245,158,11,0.65);}
 }
 
-/* ===== GUESSES CARD ===== */
+/* ── GUESSES CARD ── */
 .guesses-card{
-  background:linear-gradient(135deg,rgba(16,185,129,0.07),rgba(6,182,212,0.05));
-  border:1px solid rgba(16,185,129,0.2);
-  border-radius:20px;padding:20px;margin-bottom:18px;
-  box-shadow:0 0 20px rgba(16,185,129,0.08);
+  background:rgba(16,185,129,0.05);
+  border:1px solid rgba(16,185,129,0.15);
+  border-radius:18px;padding:18px;margin-bottom:16px;
 }
-.g-title{
-  font-size:0.72rem;font-weight:900;letter-spacing:3px;
-  text-transform:uppercase;margin-bottom:14px;
-  color:#34d399;
-}
-.guesses-feed{min-height:80px;max-height:200px;overflow-y:auto;}
+.g-title{font-size:0.7rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#34d399;margin-bottom:12px;}
+.guesses-feed{min-height:70px;max-height:190px;overflow-y:auto;}
 .guess-item{
-  padding:8px 14px;border-radius:10px;
-  background:rgba(52,211,153,0.1);border-left:3px solid #34d399;
-  font-size:0.88rem;color:rgba(255,255,255,0.85);
+  padding:8px 12px;border-radius:8px;
+  background:rgba(52,211,153,0.08);border-left:3px solid rgba(52,211,153,0.6);
+  font-size:0.85rem;color:rgba(255,255,255,0.8);
   margin-bottom:6px;animation:fadeSlide 0.3s ease;
 }
-@keyframes fadeSlide{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
-.waiting-msg{text-align:center;color:rgba(255,255,255,0.25);font-size:0.85rem;padding:10px 0;}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(-5px);}to{opacity:1;transform:translateY(0);}}
+.wait-msg{text-align:center;color:rgba(255,255,255,0.22);font-size:0.82rem;padding:10px 0;}
 
-/* ===== SECTION LABEL ===== */
-.sec-label{
-  font-size:0.72rem;font-weight:900;letter-spacing:3px;
-  text-transform:uppercase;margin-bottom:12px;color:#c084fc;
-}
-
-/* ===== PLAYER LIST ===== */
+/* ── PLAYER LIST ── */
 .player-list{list-style:none;}
 .player-list li{
-  display:flex;justify-content:space-between;
+  display:flex;justify-content:space-between;align-items:center;
   padding:10px 14px;
-  background:rgba(255,255,255,0.04);
-  border:1px solid rgba(255,255,255,0.07);
-  border-radius:12px;margin-bottom:8px;
-  font-size:0.9rem;color:rgba(255,255,255,0.85);
-  transition:all 0.2s;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:10px;margin-bottom:7px;
+  font-size:0.88rem;color:rgba(255,255,255,0.8);
 }
-.player-list li:hover{background:rgba(192,132,252,0.08);border-color:rgba(192,132,252,0.2);}
-.player-list li .pscore{
-  background:linear-gradient(135deg,#c084fc,#818cf8);
+.pscore{
+  background:linear-gradient(90deg,#e879f9,#a855f7);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  font-weight:900;
+  font-weight:800;font-size:0.85rem;
 }
 
-/* ===== SCORE CHIP ===== */
-.score-row{text-align:center;margin-bottom:14px;}
+/* ── SCORE CHIP ── */
+.score-row{text-align:center;margin-bottom:12px;}
 .score-chip{
   display:inline-block;
-  background:linear-gradient(135deg,rgba(192,132,252,0.2),rgba(129,140,248,0.2));
-  border:1.5px solid rgba(192,132,252,0.4);
-  color:#e9d5ff;padding:6px 20px;border-radius:50px;
-  font-size:0.85rem;font-weight:900;letter-spacing:1px;
-  box-shadow:0 0 16px rgba(192,132,252,0.2);
+  background:rgba(168,85,247,0.12);
+  border:1px solid rgba(168,85,247,0.3);
+  color:#d8b4fe;padding:5px 18px;border-radius:50px;
+  font-size:0.82rem;font-weight:700;letter-spacing:1px;
 }
 
-/* ===== OPTIONS GRID ===== */
-.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+/* ── OPTIONS GRID ── */
+.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
 .opt-btn{
-  padding:17px 12px;
-  background:linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.03));
-  border:1.5px solid rgba(255,255,255,0.12);
-  border-radius:16px;color:#fff;
-  font-family:'Nunito',sans-serif;font-size:0.95rem;font-weight:800;
+  padding:16px 10px;
+  background:rgba(255,255,255,0.05);
+  border:1.5px solid rgba(255,255,255,0.1);
+  border-radius:14px;color:#fff;
+  font-family:'Inter',sans-serif;font-size:0.92rem;font-weight:700;
   cursor:pointer;transition:all 0.18s;
-  text-align:center;line-height:1.35;min-height:62px;
+  text-align:center;line-height:1.35;min-height:60px;
   display:flex;align-items:center;justify-content:center;
   text-transform:none;letter-spacing:0;
   position:relative;overflow:hidden;
+  backdrop-filter:blur(8px);
 }
 .opt-btn::after{
-  content:'';position:absolute;top:0;left:-75%;
-  width:50%;height:100%;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);
-  transform:skewX(-15deg);transition:left 0.35s;
+  content:'';position:absolute;top:0;left:-80%;width:60%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent);
+  transform:skewX(-20deg);transition:left 0.35s;
 }
-.opt-btn:hover:not(:disabled)::after{left:125%;}
+.opt-btn:hover:not(:disabled)::after{left:140%;}
 .opt-btn:hover:not(:disabled){
-  background:linear-gradient(135deg,rgba(192,132,252,0.25),rgba(129,140,248,0.2));
-  border-color:#c084fc;
-  transform:translateY(-3px) scale(1.02);
-  box-shadow:0 8px 24px rgba(192,132,252,0.3);
+  background:rgba(168,85,247,0.18);border-color:rgba(168,85,247,0.5);
+  transform:translateY(-3px);
+  box-shadow:0 6px 20px rgba(168,85,247,0.25);
 }
 .opt-btn.correct{
-  background:linear-gradient(135deg,rgba(16,185,129,0.35),rgba(52,211,153,0.25)) !important;
+  background:rgba(16,185,129,0.2) !important;
   border-color:#10b981 !important;color:#6ee7b7 !important;
-  box-shadow:0 0 20px rgba(16,185,129,0.4) !important;
-  animation:correctPop 0.4s ease;
+  box-shadow:0 0 20px rgba(16,185,129,0.35) !important;
+  animation:correctPop 0.35s ease;
 }
-@keyframes correctPop{0%{transform:scale(1);}50%{transform:scale(1.07);}100%{transform:scale(1);}}
+@keyframes correctPop{0%{transform:scale(1);}50%{transform:scale(1.06);}100%{transform:scale(1);}}
 .opt-btn.wrong{
-  background:rgba(239,68,68,0.08) !important;
-  border-color:rgba(239,68,68,0.25) !important;
-  color:rgba(255,255,255,0.25) !important;
+  background:rgba(239,68,68,0.07) !important;
+  border-color:rgba(239,68,68,0.2) !important;
+  color:rgba(255,255,255,0.2) !important;
 }
 .opt-btn:disabled{cursor:not-allowed;}
 
-/* ===== STATUS BAR ===== */
+/* ── STATUS BAR ── */
 .status-bar{
-  text-align:center;padding:10px;border-radius:12px;
-  font-size:0.88rem;font-weight:700;margin-bottom:10px;
+  text-align:center;padding:10px 14px;border-radius:10px;
+  font-size:0.82rem;font-weight:700;margin-bottom:10px;letter-spacing:0.5px;
 }
-.status-bar.ok {background:rgba(16,185,129,0.12);color:#34d399;border:1px solid rgba(16,185,129,0.2);}
+.status-bar.inf{background:rgba(99,102,241,0.1);color:#a5b4fc;border:1px solid rgba(99,102,241,0.2);}
+.status-bar.ok {background:rgba(16,185,129,0.1);color:#34d399;border:1px solid rgba(16,185,129,0.2);}
 .status-bar.err{background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.2);}
-.status-bar.inf{background:rgba(99,102,241,0.12);color:#a5b4fc;border:1px solid rgba(99,102,241,0.2);}
 
-/* ===== FINAL SCORES ===== */
+/* ── FINAL SCORES ── */
 .final-list{list-style:none;}
 .final-list li{
   display:flex;align-items:center;gap:14px;
-  padding:14px 18px;border-radius:16px;margin-bottom:10px;
-  background:linear-gradient(135deg,rgba(168,85,247,0.1),rgba(236,72,153,0.07));
-  border:1px solid rgba(255,255,255,0.08);
+  padding:14px 16px;border-radius:14px;margin-bottom:10px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.07);
   transition:all 0.2s;
 }
 .final-list li:first-child{
-  background:linear-gradient(135deg,rgba(245,158,11,0.2),rgba(251,191,36,0.1));
+  background:rgba(217,119,6,0.12);
   border-color:rgba(251,191,36,0.3);
-  box-shadow:0 0 20px rgba(251,191,36,0.15);
+  box-shadow:0 0 20px rgba(251,191,36,0.1);
 }
-.medal{font-size:1.7rem;flex-shrink:0;width:42px;text-align:center;}
-.final-name{flex:1;font-weight:900;font-size:0.95rem;}
+.medal{font-size:1.6rem;flex-shrink:0;width:38px;text-align:center;}
+.final-name{flex:1;font-weight:700;font-size:0.92rem;color:rgba(255,255,255,0.9);}
 .final-pts{
-  font-weight:900;font-size:1.05rem;
-  background:linear-gradient(135deg,#f9a8d4,#c084fc);
+  font-weight:900;font-size:1rem;
+  background:linear-gradient(90deg,#e879f9,#a855f7);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
 }
 
-/* ===== TOAST ===== */
+/* ── TOAST ── */
 #toast{
   position:fixed;top:20px;right:20px;
-  background:linear-gradient(135deg,rgba(30,10,60,0.97),rgba(50,20,80,0.95));
-  border:1px solid rgba(192,132,252,0.35);
-  color:#e9d5ff;padding:12px 20px;border-radius:14px;
-  font-size:0.88rem;font-weight:700;z-index:9999;
+  background:rgba(13,13,26,0.96);
+  border:1px solid rgba(168,85,247,0.3);
+  color:#e9d5ff;padding:11px 18px;border-radius:12px;
+  font-size:0.84rem;font-weight:700;z-index:9999;
   opacity:0;pointer-events:none;
-  transform:translateX(20px) scale(0.95);
-  transition:all 0.25s cubic-bezier(0.34,1.56,0.64,1);
-  max-width:290px;box-shadow:0 8px 32px rgba(0,0,0,0.5),0 0 20px rgba(192,132,252,0.15);
+  transform:translateX(16px) scale(0.96);
+  transition:all 0.22s cubic-bezier(0.34,1.56,0.64,1);
+  max-width:280px;box-shadow:0 8px 28px rgba(0,0,0,0.5),0 0 16px rgba(168,85,247,0.1);
 }
 #toast.show{opacity:1;transform:translateX(0) scale(1);pointer-events:auto;}
 </style>
 </head>
 <body>
+<div class="bloom-tl"></div>
+<div class="glow-orb"></div>
+<canvas id="stars-canvas"></canvas>
 <div id="toast"></div>
 <div class="container">
 
   <!-- HOME -->
   <div class="screen active" id="s-home">
-    <div class="game-title">
-      <h1>vasavi GMR Kitty</h1>
-      <div class="sub">తెలుగు సినిమా ఎమోజీ గేమ్ 🎭✨</div>
-    </div>
-    <div class="card">
-      <input type="text" id="home-name" placeholder="మీ పేరు రాయండి..."/>
-      <button class="btn-host" onclick="goCreate()">🎬 హోస్ట్ గేమ్</button>
-      <button class="btn-join"  onclick="goJoin()">🎮 గేమ్ జాయిన్ అవు</button>
-    </div>
+    <div class="title-icon">🎉</div>
+    <div class="title-main">vasavi GMR Kitty</div>
+    <div class="title-sub">తెలుగు సినిమా ఎమోజీ గేమ్</div>
+    <input type="text" id="home-name" placeholder="మీ పేరు రాయండి..."/>
+    <button class="btn-create" onclick="goCreate()">CREATE GAME (HOST)</button>
+    <button class="btn-join"   onclick="goJoin()">JOIN GAME</button>
   </div>
 
   <!-- CREATE -->
   <div class="screen" id="s-create">
-    <div class="game-title"><h1>vasavi GMR Kitty</h1></div>
+    <div class="title-icon">🎬</div>
+    <div class="title-main">vasavi GMR Kitty</div>
+    <div class="title-sub">కొత్త గేమ్ సెటప్</div>
     <div class="card">
-      <div class="sec-label">🎬 గేమ్ సెటప్</div>
       <input type="number" id="rounds-input" placeholder="రౌండ్లు సంఖ్య (default: 15)" min="5" max="40"/>
-      <button class="btn-host" onclick="createRoom()">🚀 రూమ్ క్రియేట్ చేయి</button>
-      <button class="btn-back" onclick="show('s-home')">← వెనక్కి</button>
+      <button class="btn-create" onclick="createRoom()">CREATE ROOM</button>
+      <button class="btn-back"   onclick="show('s-home')">← వెనక్కి</button>
     </div>
   </div>
 
   <!-- HOST LOBBY -->
   <div class="screen" id="s-host-lobby">
-    <div class="game-title"><h1>vasavi GMR Kitty</h1></div>
+    <div class="title-icon">🎊</div>
+    <div class="title-main">vasavi GMR Kitty</div>
     <div class="room-code-box">
-      <div class="rc-label">✨ ఈ కోడ్ అందరికీ పంపండి ✨</div>
+      <div class="rc-label">✨ ఈ కోడ్ అందరికీ పంపండి</div>
       <div class="rc-code" id="lobby-code">-----</div>
     </div>
     <div class="card">
-      <div class="sec-label">👥 జాయిన్ అయిన ప్లేయర్లు</div>
-      <ul class="player-list" id="lobby-players"><li><span class="waiting-msg">ప్లేయర్లు వేచి ఉన్నారు...</span></li></ul>
+      <div class="sec-lbl">👥 జాయిన్ అయిన ప్లేయర్లు</div>
+      <ul class="player-list" id="lobby-players">
+        <li><span class="wait-msg" style="color:rgba(255,255,255,0.25);font-size:0.82rem;">ప్లేయర్లు వేచి ఉన్నారు...</span></li>
+      </ul>
     </div>
     <button class="btn-start" onclick="startGame()">▶ గేమ్ స్టార్ట్ చేయి</button>
   </div>
@@ -457,7 +441,7 @@ button:active{transform:translateY(-1px);}
     <div class="guesses-card">
       <div class="g-title">✅ సరైన జవాబులు</div>
       <div class="guesses-feed" id="h-feed">
-        <div class="waiting-msg">జవాబుల కోసం వేచి ఉంది...</div>
+        <div class="wait-msg">జవాబుల కోసం వేచి ఉంది...</div>
       </div>
     </div>
     <button class="btn-next" onclick="nextRound()">తదుపరి రౌండ్ →</button>
@@ -466,26 +450,30 @@ button:active{transform:translateY(-1px);}
 
   <!-- JOIN -->
   <div class="screen" id="s-join">
-    <div class="game-title"><h1>vasavi GMR Kitty</h1></div>
+    <div class="title-icon">🎯</div>
+    <div class="title-main">vasavi GMR Kitty</div>
+    <div class="title-sub">గేమ్ జాయిన్ అవు</div>
     <div class="card">
-      <div class="sec-label">🎮 గేమ్ జాయిన్ అవు</div>
       <input type="text" id="join-name" placeholder="మీ పేరు రాయండి..."/>
       <input type="text" id="join-code" placeholder="రూమ్ కోడ్ రాయండి..." style="text-transform:uppercase"/>
-      <button class="btn-join"  onclick="joinRoom()">✅ జాయిన్ అవు</button>
-      <button class="btn-back"  onclick="show('s-home')">← వెనక్కి</button>
+      <button class="btn-create" onclick="joinRoom()">JOIN ROOM</button>
+      <button class="btn-back"   onclick="show('s-home')">← వెనక్కి</button>
     </div>
   </div>
 
   <!-- PLAYER LOBBY -->
   <div class="screen" id="s-player-lobby">
-    <div class="game-title"><h1>vasavi GMR Kitty</h1></div>
+    <div class="title-icon">🎊</div>
+    <div class="title-main">vasavi GMR Kitty</div>
     <div class="room-code-box">
       <div class="rc-label">రూమ్ కోడ్</div>
       <div class="rc-code" id="pl-code">-----</div>
     </div>
     <div class="card">
-      <div class="sec-label">👥 ప్లేయర్లు</div>
-      <ul class="player-list" id="pl-players"><li><span class="waiting-msg">వేచి ఉంది...</span></li></ul>
+      <div class="sec-lbl">👥 ప్లేయర్లు</div>
+      <ul class="player-list" id="pl-players">
+        <li><span style="color:rgba(255,255,255,0.25);font-size:0.82rem;">వేచి ఉంది...</span></li>
+      </ul>
       <div class="status-bar inf" style="margin-top:12px">🕐 హోస్ట్ గేమ్ స్టార్ట్ చేయడం వేచి ఉంది...</div>
     </div>
   </div>
@@ -502,12 +490,10 @@ button:active{transform:translateY(-1px);}
 
   <!-- GAME OVER -->
   <div class="screen" id="s-gameover">
-    <div class="game-title">
-      <h1>vasavi GMR Kitty</h1>
-      <div class="sub">🏆 గేమ్ ముగిసింది! అభినందనలు! 🏆</div>
-    </div>
+    <div class="title-icon">🏆</div>
+    <div class="title-main">అభినందనలు!</div>
+    <div class="title-sub">గేమ్ ముగిసింది • ఫైనల్ స్కోర్లు</div>
     <div class="card">
-      <div class="sec-label">🏅 ఫైనల్ స్కోర్లు</div>
       <ul class="final-list" id="final-list"></ul>
     </div>
     <button class="btn-again" onclick="playAgain()">🔄 మళ్ళీ ఆడు</button>
@@ -516,152 +502,176 @@ button:active{transform:translateY(-1px);}
 </div>
 
 <script>
-  const socket = io();
-  let myName='',myRoom='',isHost=false,myScore=0;
-  let hasAnswered=false,lastAnswer='';
-
-  const SS={
-    save:(n,r,h)=>{sessionStorage.setItem('vgk_n',n);sessionStorage.setItem('vgk_r',r);sessionStorage.setItem('vgk_h',h?'1':'0');},
-    clear:()=>{['vgk_n','vgk_r','vgk_h'].forEach(k=>sessionStorage.removeItem(k));},
-    get:()=>({n:sessionStorage.getItem('vgk_n'),r:sessionStorage.getItem('vgk_r'),h:sessionStorage.getItem('vgk_h')})
-  };
-
-  function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
-
-  let _tt;
-  function toast(msg,ms=3200){
-    const t=document.getElementById('toast');
-    t.textContent=msg;t.classList.add('show');
-    clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),ms);
+/* ── STAR FIELD ── */
+(function(){
+  const canvas = document.getElementById('stars-canvas');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+  function resize(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
   }
-
-  function goCreate(){
-    const n=document.getElementById('home-name').value.trim();
-    if(!n){toast('⚠️ మీ పేరు రాయండి!');return;}
-    myName=n;show('s-create');
-  }
-  function goJoin(){
-    const n=document.getElementById('home-name').value.trim();
-    if(!n){toast('⚠️ మీ పేరు రాయండి!');return;}
-    myName=n;document.getElementById('join-name').value=n;show('s-join');
-  }
-  function createRoom(){
-    const rounds=parseInt(document.getElementById('rounds-input').value)||15;
-    isHost=true;socket.emit('create-room',{name:myName,rounds});
-  }
-  function joinRoom(){
-    const n=document.getElementById('join-name').value.trim();
-    const c=document.getElementById('join-code').value.trim().toUpperCase();
-    if(!n||!c){toast('⚠️ పేరు మరియు కోడ్ రాయండి!');return;}
-    myName=n;myRoom=c;socket.emit('join-room',{name:n,roomCode:c});
-  }
-  function startGame(){socket.emit('start-game');}
-  function nextRound(){
-    socket.emit('next-round');
-    document.getElementById('h-feed').innerHTML='<div class="waiting-msg">జవాబుల కోసం వేచి ఉంది...</div>';
-  }
-  function endGame(){socket.emit('end-game');}
-  function playAgain(){SS.clear();location.reload();}
-
-  function renderOptions(opts){
-    hasAnswered=false;
-    const grid=document.getElementById('p-options');
-    grid.innerHTML='';
-    opts.forEach(opt=>{
-      const btn=document.createElement('button');
-      btn.className='opt-btn';btn.textContent=opt;
-      btn.onclick=()=>{lastAnswer=opt;submitAnswer(opt);};
-      grid.appendChild(btn);
-    });
-    document.getElementById('p-status').innerHTML='';
-  }
-  function submitAnswer(ans){
-    if(hasAnswered)return;hasAnswered=true;
-    document.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);
-    socket.emit('submit-answer',{answer:ans});
-  }
-  function highlightAnswer(ans,correct){
-    document.querySelectorAll('.opt-btn').forEach(b=>{
-      b.disabled=true;
-      if(b.textContent===ans)b.classList.add(correct?'correct':'wrong');
-    });
-  }
-
-  function renderPlayers(players,ulId){
-    const ul=document.getElementById(ulId);
-    if(!players||!players.length){ul.innerHTML='<li><span class="waiting-msg">వేచి ఉంది...</span></li>';return;}
-    ul.innerHTML=players.map(p=>`<li><span>${p.name}</span><span class="pscore">${p.score} pts</span></li>`).join('');
-  }
-
-  function renderFinal(scores){
-    const medals=['🥇','🥈','🥉'];
-    document.getElementById('final-list').innerHTML=scores.map((p,i)=>
-      `<li>
-        <span class="medal">${medals[i]||'🎖️'}</span>
-        <span class="final-name">${p.name}</span>
-        <span class="final-pts">${p.score} pts</span>
-      </li>`
-    ).join('');
-    show('s-gameover');
-  }
-
-  socket.on('room-created',({roomCode})=>{
-    myRoom=roomCode;
-    document.getElementById('lobby-code').textContent=roomCode;
-    SS.save(myName,roomCode,true);show('s-host-lobby');
-  });
-  socket.on('player-joined',({name,players})=>{
-    renderPlayers(players,'lobby-players');toast(`👋 ${name} జాయిన్ అయ్యారు!`);
-  });
-  socket.on('joined',({name,roomCode,score,isRejoin})=>{
-    myName=name;myRoom=roomCode;myScore=score||0;
-    document.getElementById('pl-code').textContent=roomCode;
-    document.getElementById('p-score').textContent=myScore;
-    SS.save(name,roomCode,false);
-    if(isRejoin)toast(`✅ రీజాయిన్! స్కోర్: ${myScore}`);
-    show('s-player-lobby');
-  });
-  socket.on('host-rejoined',({roomCode,players,started})=>{
-    myRoom=roomCode;document.getElementById('lobby-code').textContent=roomCode;
-    renderPlayers(players,'lobby-players');toast('✅ హోస్ట్ రీజాయిన్!');
-    show(started?'s-host-game':'s-host-lobby');
-  });
-  socket.on('round-start',({round,total,emoji,hint,options})=>{
-    if(isHost){
-      document.getElementById('h-round').textContent=`ROUND ${round}/${total}`;
-      document.getElementById('h-emoji').textContent=emoji;
-      document.getElementById('h-hint').textContent=hint;
-      document.getElementById('h-feed').innerHTML='<div class="waiting-msg">జవాబుల కోసం వేచి ఉంది...</div>';
-      show('s-host-game');
-    } else {
-      document.getElementById('p-round').textContent=`ROUND ${round}/${total}`;
-      document.getElementById('p-emoji').textContent=emoji;
-      document.getElementById('p-hint').textContent=hint;
-      renderOptions(options);show('s-player-game');
+  function initStars(){
+    stars = [];
+    const count = Math.floor((canvas.width * canvas.height) / 6000);
+    for(let i=0;i<count;i++){
+      stars.push({
+        x: Math.random()*canvas.width,
+        y: Math.random()*canvas.height,
+        r: Math.random()*1.5+0.3,
+        a: Math.random(),
+        speed: Math.random()*0.008+0.003
+      });
     }
-  });
-  socket.on('correct-guess',({name,answer})=>{
-    if(!isHost)return;
-    const feed=document.getElementById('h-feed');
-    const empty=feed.querySelector('.waiting-msg');if(empty)empty.remove();
-    const div=document.createElement('div');div.className='guess-item';
-    div.textContent=`✅ ${name} → ${answer}`;feed.insertBefore(div,feed.firstChild);
-  });
-  socket.on('answer-result',({correct})=>{
-    highlightAnswer(lastAnswer,correct);
-    if(correct){myScore+=10;document.getElementById('p-score').textContent=myScore;toast('🎉 సరైన జవాబు! +10 పాయింట్లు');}
-    else toast('❌ తప్పు జవాబు!');
-  });
-  socket.on('player-left',({players})=>{if(isHost)renderPlayers(players,'lobby-players');});
-  socket.on('host-disconnected',()=>toast('⚠️ హోస్ట్ డిస్కనెక్ట్ — 5 నిమిషాలు వేచి ఉంది...',7000));
-  socket.on('room-closed',()=>{toast('❌ రూమ్ క్లోజ్ అయింది.',5000);SS.clear();setTimeout(()=>location.reload(),3000);});
-  socket.on('game-over',({finalScores})=>renderFinal(finalScores));
-  socket.on('error',({message})=>toast(`❌ ${message}`));
+  }
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    stars.forEach(s=>{
+      s.a += s.speed;
+      const alpha = (Math.sin(s.a)*0.5+0.5)*0.7+0.1;
+      ctx.beginPath();
+      ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  resize(); initStars(); draw();
+  window.addEventListener('resize',()=>{resize();initStars();});
+})();
 
-  socket.on('connect',()=>{
-    const {n,r,h}=SS.get();
-    if(n&&r){myName=n;myRoom=r;isHost=h==='1';socket.emit('join-room',{name:n,roomCode:r});}
+/* ── APP ── */
+const socket = io();
+let myName='',myRoom='',isHost=false,myScore=0;
+let hasAnswered=false,lastAnswer='';
+
+const SS={
+  save:(n,r,h)=>{sessionStorage.setItem('vgk_n',n);sessionStorage.setItem('vgk_r',r);sessionStorage.setItem('vgk_h',h?'1':'0');},
+  clear:()=>{['vgk_n','vgk_r','vgk_h'].forEach(k=>sessionStorage.removeItem(k));},
+  get:()=>({n:sessionStorage.getItem('vgk_n'),r:sessionStorage.getItem('vgk_r'),h:sessionStorage.getItem('vgk_h')})
+};
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+
+let _tt;
+function toast(msg,ms=3200){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),ms);
+}
+
+function goCreate(){
+  const n=document.getElementById('home-name').value.trim();
+  if(!n){toast('⚠️ మీ పేరు రాయండి!');return;}
+  myName=n;show('s-create');
+}
+function goJoin(){
+  const n=document.getElementById('home-name').value.trim();
+  if(!n){toast('⚠️ మీ పేరు రాయండి!');return;}
+  myName=n;document.getElementById('join-name').value=n;show('s-join');
+}
+function createRoom(){
+  const rounds=parseInt(document.getElementById('rounds-input').value)||15;
+  isHost=true;socket.emit('create-room',{name:myName,rounds});
+}
+function joinRoom(){
+  const n=document.getElementById('join-name').value.trim();
+  const c=document.getElementById('join-code').value.trim().toUpperCase();
+  if(!n||!c){toast('⚠️ పేరు మరియు కోడ్ రాయండి!');return;}
+  myName=n;myRoom=c;socket.emit('join-room',{name:n,roomCode:c});
+}
+function startGame(){socket.emit('start-game');}
+function nextRound(){
+  socket.emit('next-round');
+  document.getElementById('h-feed').innerHTML='<div class="wait-msg">జవాబుల కోసం వేచి ఉంది...</div>';
+}
+function endGame(){socket.emit('end-game');}
+function playAgain(){SS.clear();location.reload();}
+
+function renderOptions(opts){
+  hasAnswered=false;
+  const grid=document.getElementById('p-options');
+  grid.innerHTML='';
+  opts.forEach(opt=>{
+    const btn=document.createElement('button');
+    btn.className='opt-btn';btn.textContent=opt;
+    btn.onclick=()=>{if(hasAnswered)return;hasAnswered=true;lastAnswer=opt;document.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);socket.emit('submit-answer',{answer:opt});};
+    grid.appendChild(btn);
   });
+  document.getElementById('p-status').innerHTML='';
+}
+function highlightAnswer(ans,correct){
+  document.querySelectorAll('.opt-btn').forEach(b=>{
+    b.disabled=true;
+    if(b.textContent===ans)b.classList.add(correct?'correct':'wrong');
+  });
+}
+function renderPlayers(players,ulId){
+  const ul=document.getElementById(ulId);
+  if(!players||!players.length){ul.innerHTML='<li><span style="color:rgba(255,255,255,0.25);font-size:0.82rem;">వేచి ఉంది...</span></li>';return;}
+  ul.innerHTML=players.map(p=>`<li><span>${p.name}</span><span class="pscore">${p.score} pts</span></li>`).join('');
+}
+function renderFinal(scores){
+  const medals=['🥇','🥈','🥉'];
+  document.getElementById('final-list').innerHTML=scores.map((p,i)=>
+    `<li><span class="medal">${medals[i]||'🎖️'}</span><span class="final-name">${p.name}</span><span class="final-pts">${p.score} pts</span></li>`
+  ).join('');
+  show('s-gameover');
+}
+
+socket.on('room-created',({roomCode})=>{
+  myRoom=roomCode;document.getElementById('lobby-code').textContent=roomCode;
+  SS.save(myName,roomCode,true);show('s-host-lobby');
+});
+socket.on('player-joined',({name,players})=>{renderPlayers(players,'lobby-players');toast(`👋 ${name} జాయిన్ అయ్యారు!`);});
+socket.on('joined',({name,roomCode,score,isRejoin})=>{
+  myName=name;myRoom=roomCode;myScore=score||0;
+  document.getElementById('pl-code').textContent=roomCode;
+  document.getElementById('p-score').textContent=myScore;
+  SS.save(name,roomCode,false);
+  if(isRejoin)toast(`✅ రీజాయిన్! స్కోర్: ${myScore}`);
+  show('s-player-lobby');
+});
+socket.on('host-rejoined',({roomCode,players,started})=>{
+  myRoom=roomCode;document.getElementById('lobby-code').textContent=roomCode;
+  renderPlayers(players,'lobby-players');toast('✅ హోస్ట్ రీజాయిన్!');
+  show(started?'s-host-game':'s-host-lobby');
+});
+socket.on('round-start',({round,total,emoji,hint,options})=>{
+  if(isHost){
+    document.getElementById('h-round').textContent=`ROUND ${round}/${total}`;
+    document.getElementById('h-emoji').textContent=emoji;
+    document.getElementById('h-hint').textContent=hint;
+    document.getElementById('h-feed').innerHTML='<div class="wait-msg">జవాబుల కోసం వేచి ఉంది...</div>';
+    show('s-host-game');
+  } else {
+    document.getElementById('p-round').textContent=`ROUND ${round}/${total}`;
+    document.getElementById('p-emoji').textContent=emoji;
+    document.getElementById('p-hint').textContent=hint;
+    renderOptions(options);show('s-player-game');
+  }
+});
+socket.on('correct-guess',({name,answer})=>{
+  if(!isHost)return;
+  const feed=document.getElementById('h-feed');
+  const empty=feed.querySelector('.wait-msg');if(empty)empty.remove();
+  const div=document.createElement('div');div.className='guess-item';
+  div.textContent=`✅ ${name} → ${answer}`;feed.insertBefore(div,feed.firstChild);
+});
+socket.on('answer-result',({correct})=>{
+  highlightAnswer(lastAnswer,correct);
+  if(correct){myScore+=10;document.getElementById('p-score').textContent=myScore;toast('🎉 సరైన జవాబు! +10 పాయింట్లు');}
+  else toast('❌ తప్పు జవాబు!');
+});
+socket.on('player-left',({players})=>{if(isHost)renderPlayers(players,'lobby-players');});
+socket.on('host-disconnected',()=>toast('⚠️ హోస్ట్ డిస్కనెక్ట్ — 5 నిమిషాలు వేచి ఉంది...',7000));
+socket.on('room-closed',()=>{toast('❌ రూమ్ క్లోజ్ అయింది.',5000);SS.clear();setTimeout(()=>location.reload(),3000);});
+socket.on('game-over',({finalScores})=>renderFinal(finalScores));
+socket.on('error',({message})=>toast(`❌ ${message}`));
+socket.on('connect',()=>{
+  const {n,r,h}=SS.get();
+  if(n&&r){myName=n;myRoom=r;isHost=h==='1';socket.emit('join-room',{name:n,roomCode:r});}
+});
 </script>
 </body>
 </html>

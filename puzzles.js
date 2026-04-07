@@ -1,44 +1,249 @@
 const puzzles = [
-  { emojis: "💪 🐘 👑", answer: "Baahubali", options: ["Baahubali", "Magadheera", "RRR", "Pushpa"], hint: "A warrior prince fights for his throne" },
-  { emojis: "🔥 💧 🏴", answer: "RRR", options: ["RRR", "Pokiri", "Temper", "Jersey"], hint: "Two rebels fight against British oppression" },
-  { emojis: "🌺 🪵 🏔️", answer: "Pushpa", options: ["Pushpa", "Rangasthalam", "Srimanthudu", "Eega"], hint: "A smuggler rises in the red sanders trade" },
-  { emojis: "🏥 ❤️ 🍺", answer: "Arjun Reddy", options: ["Arjun Reddy", "Maharshi", "Taxiwaala", "Fidaa"], hint: "A surgeon's downfall through love and loss" },
-  { emojis: "👨‍👦 🏠 💃", answer: "Ala Vaikunthapurramuloo", options: ["Ala Vaikunthapurramuloo", "Sarileru Neekevvaru", "Bheemla Nayak", "Nannaku Prematho"], hint: "Two babies swapped at birth" },
-  { emojis: "🪰 💀 ❤️", answer: "Eega", options: ["Eega", "Makkhi", "Awe", "Ohm Shanthi Oshaana"], hint: "A fly seeks revenge for love" },
-  { emojis: "⚔️ 🐴 ♻️", answer: "Magadheera", options: ["Magadheera", "Baahubali", "Chatrapathi", "Bimbisara"], hint: "Reincarnation and past life love story" },
-  { emojis: "💰 🏘️ ❤️", answer: "Srimanthudu", options: ["Srimanthudu", "Businessman", "Julayi", "Dookudu"], hint: "A billionaire builds homes for the poor" },
-  { emojis: "🌾 👂 🏘️", answer: "Rangasthalam", options: ["Rangasthalam", "Fidaa", "Mahanati", "Pelli Choopulu"], hint: "A deaf man saves his village from crime" },
-  { emojis: "🏠 👴 💃", answer: "Attarintiki Daredi", options: ["Attarintiki Daredi", "Khaidi No 150", "Agnyaathavaasi", "Sardaar Gabbar Singh"], hint: "A girl dances to win her grandfather's love" },
-  { emojis: "🤠 🔫 😎", answer: "Gabbar Singh", options: ["Gabbar Singh", "Pokiri", "Khaleja", "Mirchi"], hint: "A rogue cop with a mysterious past" },
-  { emojis: "🔫 🕺 🎭", answer: "Pokiri", options: ["Pokiri", "Temper", "Jalsa", "Gabbar Singh"], hint: "A young man infiltrates a gang as a killer" },
-  { emojis: "👮 😡 ⚖️", answer: "Temper", options: ["Temper", "Pokiri", "Mirchi", "Dookudu"], hint: "A corrupt cop reforms after a tragedy" },
-  { emojis: "🔒 💯 🕺", answer: "Khaidi No 150", options: ["Khaidi No 150", "Attarintiki Daredi", "Sardaar Gabbar Singh", "Agnyaathavaasi"], hint: "A convict's lookalike saves a village" },
-  { emojis: "🏆 🎾 💪", answer: "Jersey", options: ["Jersey", "Maharshi", "Taxiwaala", "Chi La Sow"], hint: "An aging cricketer makes his comeback" },
-  { emojis: "🌹 💌 🚂", answer: "Fidaa", options: ["Fidaa", "Pelli Choopulu", "Mahanati", "Geetha Govindam"], hint: "A Telangana village girl falls for a Telugu-American" },
-  { emojis: "🎬 🎥 👑", answer: "Mahanati", options: ["Mahanati", "Fidaa", "Rangasthalam", "Awe"], hint: "Biopic of legendary actress Savitri" },
-  { emojis: "🍳 👩 💕", answer: "Pelli Choopulu", options: ["Pelli Choopulu", "Fidaa", "Geetha Govindam", "Chi La Sow"], hint: "Two opposites meet during a cooking venture" },
-  { emojis: "🌙 💛 🛺", answer: "Geetha Govindam", options: ["Geetha Govindam", "Fidaa", "Taxiwaala", "Majili"], hint: "A lecturer falls for a feisty village girl" },
-  { emojis: "💔 🥃 ⚽", answer: "Majili", options: ["Majili", "Jersey", "Arjun Reddy", "Maharshi"], hint: "A failed cricketer drowns in grief and alcohol" },
-  { emojis: "🚗 👻 😱", answer: "Taxiwaala", options: ["Taxiwaala", "Awe", "Eega", "Geethanjali"], hint: "A cab driver buys a haunted taxi" },
-  { emojis: "🎓 💼 🌟", answer: "Maharshi", options: ["Maharshi", "Srimanthudu", "Jersey", "Julayi"], hint: "A billionaire returns to help his struggling village" },
-  { emojis: "🧠 👁️ 🌀", answer: "Awe", options: ["Awe", "Taxiwaala", "Geethanjali", "Kshanam"], hint: "Six strangers connect in a mysterious restaurant" },
-  { emojis: "🔍 💑 📱", answer: "Kshanam", options: ["Kshanam", "Awe", "Agent Sai Srinivasa", "Evaru"], hint: "A man searches for his missing ex-girlfriend" },
-  { emojis: "⚔️ 👑 🕰️", answer: "Bimbisara", options: ["Bimbisara", "Magadheera", "Baahubali", "Chatrapathi"], hint: "A cruel ancient king time-travels to the present" },
-  { emojis: "🧪 🔬 💀", answer: "HIT", options: ["HIT", "Evaru", "Kshanam", "Agent Sai Srinivasa"], hint: "A detective investigates a missing person case" },
-  { emojis: "❓ 🕵️ 😰", answer: "Evaru", options: ["Evaru", "HIT", "Kshanam", "Awe"], hint: "A psychological thriller — who is lying?" },
-  { emojis: "🦁 🌿 🏹", answer: "Chatrapathi", options: ["Chatrapathi", "Vikramarkudu", "Magadheera", "Mirchi"], hint: "A fearless young man fights for refugees" },
-  { emojis: "👮 🌶️ 💥", answer: "Vikramarkudu", options: ["Vikramarkudu", "Chatrapathi", "Dookudu", "Mirchi"], hint: "A fierce cop takes on a village tyrant" },
-  { emojis: "💣 😂 🕵️", answer: "Dookudu", options: ["Dookudu", "Julayi", "Mirchi", "Son of Satyamurthy"], hint: "A crazy ACP goes undercover with a fake family" },
-  { emojis: "🧩 🤣 💰", answer: "Julayi", options: ["Julayi", "Dookudu", "Businessman", "Son of Satyamurthy"], hint: "A lazy guy stumbles into a heist" },
-  { emojis: "🌊 💸 🧨", answer: "Businessman", options: ["Businessman", "Julayi", "Okkadu", "Athadu"], hint: "A ruthless don builds an underworld empire" },
-  { emojis: "🥊 🏆 ❤️", answer: "Okkadu", options: ["Okkadu", "Athadu", "Pokiri", "Mirchi"], hint: "A Kabaddi player fights a powerful villain for love" },
-  { emojis: "🔫 🎭 🏃", answer: "Athadu", options: ["Athadu", "Okkadu", "Pokiri", "Businessman"], hint: "A hitman assumes a dead man's identity" },
-  { emojis: "💐 🌸 😊", answer: "Bommarillu", options: ["Bommarillu", "Happy", "Sainikudu", "Nuvvostanante Nenoddantana"], hint: "A son rebels against his overprotective father for love" },
-  { emojis: "💒 👫 🏡", answer: "Nuvvostanante Nenoddantana", options: ["Nuvvostanante Nenoddantana", "Bommarillu", "Happy", "Dil"], hint: "Families feud but young love wins" },
-  { emojis: "🕊️ 🌅 🎶", answer: "Ye Maaya Chesave", options: ["Ye Maaya Chesave", "Nuvvostanante Nenoddantana", "Bommana Bros", "Brindavanam"], hint: "A Hindu-Christian love story" },
-  { emojis: "🌴 🏖️ 💞", answer: "Brindavanam", options: ["Brindavanam", "Ye Maaya Chesave", "Teen Maar", "Julayi"], hint: "A loyal friend helps a girl escape a forced marriage" },
-  { emojis: "👨‍👩‍👦 💔 🎵", answer: "Son of Satyamurthy", options: ["Son of Satyamurthy", "Julayi", "Businessman", "Dookudu"], hint: "A son takes responsibility after his father's death" },
-  { emojis: "🌺 🩸 ⚡", answer: "Mirchi", options: ["Mirchi", "Chatrapathi", "Vikramarkudu", "Gabbar Singh"], hint: "A carefree man fights a deadly enemy for his village" }
+  // === BATCH 1 (first 15 shown by default) ===
+  {
+    emoji: "🌿🔥💪",
+    answer: "Pushpa",
+    hint: "తెలుగు సినిమా",
+    options: ["పుష్ప", "అర్జున్ రెడ్డి", "సంబో", "భీమ్లా నాయక్"]
+  },
+  {
+    emoji: "🎪🩸💃🎭",
+    answer: "Rangasthalam",
+    hint: "తెలుగు సినిమా",
+    options: ["రంగస్థలం", "పెళ్ళిచూపులు", "జై లవకుశ", "ఫిదా"]
+  },
+  {
+    emoji: "👑🏛️⚔️🌊",
+    answer: "Baahubali",
+    hint: "తెలుగు సినిమా",
+    options: ["బాహుబలి", "మగధీర", "రుద్రమదేవి", "అశోకవనం"]
+  },
+  {
+    emoji: "🚂🌧️❤️👫",
+    answer: "Jalsa",
+    hint: "తెలుగు సినిమా",
+    options: ["జల్సా", "అత్తారింటికి దారేది", "పోకిరి", "స్టైలిష్"]
+  },
+  {
+    emoji: "🐍🏹🐉⚔️",
+    answer: "Magadheera",
+    hint: "తెలుగు సినిమా",
+    options: ["మగధీర", "బాహుబలి", "యేగడ", "భైరవ గీత"]
+  },
+  {
+    emoji: "👮‍♂️🚗💥🔫",
+    answer: "Pokiri",
+    hint: "తెలుగు సినిమా",
+    options: ["పోకిరి", "టెంపర్", "దూకుడు", "అతిథి"]
+  },
+  {
+    emoji: "🦅🇮🇳💥🎶",
+    answer: "RRR",
+    hint: "తెలుగు సినిమా",
+    options: ["ఆర్ఆర్ఆర్", "సైరా", "ఒకటే ఒక్కడు", "వీర్ కి వేడి"]
+  },
+  {
+    emoji: "👦🏫📚😢",
+    answer: "Bommarillu",
+    hint: "తెలుగు సినిమా",
+    options: ["బొమ్మరిల్లు", "హ్యాపీ డేస్", "అరుందతి", "ఔనంటావా"]
+  },
+  {
+    emoji: "🌹👰💔🕊️",
+    answer: "Arundhati",
+    hint: "తెలుగు సినిమా",
+    options: ["అరుందతి", "రుద్రమదేవి", "పెళ్ళి సందడి", "జగదేక వీరుడు"]
+  },
+  {
+    emoji: "🧔🔪😈🌃",
+    answer: "Akhanda",
+    hint: "తెలుగు సినిమా",
+    options: ["అఖండ", "వేదం", "సింహాద్రి", "జై లవకుశ"]
+  },
+  {
+    emoji: "💊🏥❤️‍🔥🎓",
+    answer: "Arjun Reddy",
+    hint: "తెలుగు సినిమా",
+    options: ["అర్జున్ రెడ్డి", "గీత గోవిందం", "దేవదాస్", "ఛలో"]
+  },
+  {
+    emoji: "🌺🎶👫🏔️",
+    answer: "Geetha Govindam",
+    hint: "తెలుగు సినిమా",
+    options: ["గీత గోవిందం", "ఫిదా", "ముత్యాల ముగ్గు", "కళ్యాణ్ రామ్"]
+  },
+  {
+    emoji: "🏺🌾🕌⚔️",
+    answer: "Sye Raa Narasimha Reddy",
+    hint: "తెలుగు సినిమా",
+    options: ["సైరా నరసింహారెడ్డి", "బాహుబలి", "ఖైదీ నంబర్ 150", "జగదేక వీరుడు"]
+  },
+  {
+    emoji: "👨‍👩‍👧🏠💰😭",
+    answer: "Major Chandrakanth",
+    hint: "తెలుగు సినిమా",
+    options: ["మేజర్ చంద్రకాంత్", "కొడుకు దిద్దినతండ్రి", "ప్రేమించుకుందాం రా", "అల్లరి నరేష్"]
+  },
+  {
+    emoji: "🎭🎪🤹🎠",
+    answer: "Bhale Bhale Magadivoy",
+    hint: "తెలుగు సినిమా",
+    options: ["భలే భలే మగాడివోయ్", "పోరి", "చిత్తం", "అందమైన జీవితం"]
+  },
+
+  // === BATCH 2 (shown on repeat hosts) ===
+  {
+    emoji: "🌊🏖️🚢🏝️",
+    answer: "Chatrapathi",
+    hint: "తెలుగు సినిమా",
+    options: ["చత్రపతి", "విక్రమార్కుడు", "అది", "వాలి"]
+  },
+  {
+    emoji: "🎓👩‍❤️‍👨🌹🎵",
+    answer: "Happy Days",
+    hint: "తెలుగు సినిమా",
+    options: ["హ్యాపీ డేస్", "బొమ్మరిల్లు", "సైనికుడు", "నా పేరు సూర్య"]
+  },
+  {
+    emoji: "⚡👹🔱🏰",
+    answer: "Yamadonga",
+    hint: "తెలుగు సినిమా",
+    options: ["యమడోంగ", "అతిరాత్రి", "శివమని", "మాయాబజార్"]
+  },
+  {
+    emoji: "🦊🏃‍♂️💸🔫",
+    answer: "Vikramarkudu",
+    hint: "తెలుగు సినిమా",
+    options: ["విక్రమార్కుడు", "చత్రపతి", "నాన్ని", "బాలయ్య"]
+  },
+  {
+    emoji: "🌾👨‍🌾🚜💔",
+    answer: "Mirchi",
+    hint: "తెలుగు సినిమా",
+    options: ["మిర్చి", "రుక్తచరిత్ర", "ఇది మా కథ", "స్వభావం"]
+  },
+  {
+    emoji: "🎈👫💒🥂",
+    answer: "Fidaa",
+    hint: "తెలుగు సినిమా",
+    options: ["ఫిదా", "కళ్యాణ్ రామ్", "ఓకే బంగారం", "గీత గోవిందం"]
+  },
+  {
+    emoji: "🕵️‍♂️🔍🌆🗡️",
+    answer: "Temper",
+    hint: "తెలుగు సినిమా",
+    options: ["టెంపర్", "పోకిరి", "దూకుడు", "జార్జ్ రెడ్డి"]
+  },
+  {
+    emoji: "👨‍⚕️💉🏥🌿",
+    answer: "Shatamanam Bhavati",
+    hint: "తెలుగు సినిమా",
+    options: ["శతమానం భవతి", "నిన్నే పెళ్ళాడతా", "పెళ్ళిచూపులు", "బొమ్మరిల్లు"]
+  },
+  {
+    emoji: "🎋🌕👶🏡",
+    answer: "Pellichoopulu",
+    hint: "తెలుగు సినిమా",
+    options: ["పెళ్ళిచూపులు", "ఓకే బంగారం", "అలా వైకుంఠపురంలో", "అనగనగా ఒక ధీరుడు"]
+  },
+  {
+    emoji: "🦅🌅🏹💛",
+    answer: "Ala Vaikunthapurramuloo",
+    hint: "తెలుగు సినిమా",
+    options: ["అలా వైకుంఠపురంలో", "సరిలేరు నీకేవ్వరు", "ఆర్ఆర్ఆర్", "అఖండ"]
+  },
+  {
+    emoji: "🏋️‍♂️⚔️🔱🕌",
+    answer: "Sarileru Neekevvaru",
+    hint: "తెలుగు సినిమా",
+    options: ["సరిలేరు నీకేవ్వరు", "భారత్ అనే నేను", "మహర్షి", "వంశీ"]
+  },
+  {
+    emoji: "📖✍️🏫👩‍🏫",
+    answer: "Mahanati",
+    hint: "తెలుగు సినిమా",
+    options: ["మహానటి", "రుద్రమదేవి", "అరుందతి", "ఇంద్రమతి"]
+  },
+  {
+    emoji: "🌙⭐🧸💝",
+    answer: "Oh Baby",
+    hint: "తెలుగు సినిమా",
+    options: ["ఓహ్ బేబీ", "ఆనందం", "అమ్మ", "స్త్రీ"]
+  },
+  {
+    emoji: "🚁💥🏔️🪖",
+    answer: "Major",
+    hint: "తెలుగు సినిమా",
+    options: ["మేజర్", "కేజీఎఫ్", "ఆర్ఆర్ఆర్", "సైరా"]
+  },
+  {
+    emoji: "🌺🎨🖌️💃",
+    answer: "Srinivasa Kalyanam",
+    hint: "తెలుగు సినిమా",
+    options: ["శ్రీనివాస కళ్యాణం", "పెళ్ళిచూపులు", "పెళ్ళి సందడి", "జై లవకుశ"]
+  },
+
+  // === BATCH 3 (more fresh movies) ===
+  {
+    emoji: "🐂🌾🏘️💪",
+    answer: "Bheemla Nayak",
+    hint: "తెలుగు సినిమా",
+    options: ["భీమ్లా నాయక్", "జల్సా", "పోకిరి", "దేవర"]
+  },
+  {
+    emoji: "🌊🏖️💑🎵",
+    answer: "Oopiri",
+    hint: "తెలుగు సినిమా",
+    options: ["ఊపిరి", "అల్లుడు", "జల్సా", "నిజం"]
+  },
+  {
+    emoji: "👊🚔🔥⚡",
+    answer: "Krack",
+    hint: "తెలుగు సినిమా",
+    options: ["క్రాక్", "టెంపర్", "మురారి", "దూకుడు"]
+  },
+  {
+    emoji: "🎈👨‍👩‍👦💒🥂",
+    answer: "Attarintiki Daredi",
+    hint: "తెలుగు సినిమా",
+    options: ["అత్తారింటికి దారేది", "బొమ్మరిల్లు", "పెళ్ళిచూపులు", "శతమానం భవతి"]
+  },
+  {
+    emoji: "🏚️🌃🔥👊",
+    answer: "Duvvada Jagannadham",
+    hint: "తెలుగు సినిమా",
+    options: ["దువ్వాడ జగన్నాధం", "ఖైదీ నంబర్ 150", "జై లవకుశ", "అఖండ"]
+  },
+  {
+    emoji: "🎻🎼👩‍🎤💫",
+    answer: "Malli Malli Idi Rani Roju",
+    hint: "తెలుగు సినిమా",
+    options: ["మళ్ళీ మళ్ళీ ఇది రాని రోజు", "అందాల రాక్షసి", "ఆత్మబంధువు", "ప్రేమలో"]
+  },
+  {
+    emoji: "🐯🏋️‍♂️🔫🦁",
+    answer: "KGF",
+    hint: "తెలుగు సినిమా",
+    options: ["కేజీఎఫ్", "సైరా", "గ్యాంగ్ స్టర్", "దేవర"]
+  },
+  {
+    emoji: "🔱🕌🌺🙏",
+    answer: "Nagarjuna",
+    hint: "తెలుగు సినిమా",
+    options: ["నాగార్జున", "అరుందతి", "యమడోంగ", "అది"]
+  },
+  {
+    emoji: "🎤🎸🥁🎶",
+    answer: "Dil",
+    hint: "తెలుగు సినిమా",
+    options: ["డిల్", "అలా వైకుంఠపురంలో", "ముత్యాల ముగ్గు", "బ్యాండ్ బాజా"]
+  },
+  {
+    emoji: "🌟👸🏰💎",
+    answer: "Rudhramadevi",
+    hint: "తెలుగు సినిమా",
+    options: ["రుద్రమదేవి", "అరుందతి", "మహానటి", "రాణి"]
+  }
 ];
 
 module.exports = puzzles;

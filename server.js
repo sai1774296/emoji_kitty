@@ -1,344 +1,255 @@
-/**
- * Emoji Guess — Kitty Party Edition
- * Node.js + Express + Socket.IO Server
- * Features: multiple choice, rejoin support
- */
-
 const express = require('express');
 const http = require('http');
-const { Server } = require('socket.io');
+const socketIo = require('socket.io');
 const path = require('path');
-const puzzles = require('./puzzles');
+const allPuzzles = require('./puzzles');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
-  cors: { origin: '*', methods: ['GET', 'POST'] }
-});
+const io = socketIo(server);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
 const rooms = {};
-const playerRooms = {};  // socketId -> roomCode
+const HOST_TIMEOUT = 5 * 60 * 1000; // 5 minutes
 
-function generateRoomCode() {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let code = '';
-  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
-  return code;
-}
+// Track which puzzles each room has already used (for rotation across sessions)
+const roomPuzzleHistory = {};
 
-function uniqueRoomCode() {
-  let code;
-  do { code = generateRoomCode(); } while (rooms[code]);
-  return code;
-}
-
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
+function getRandomPuzzles(roomCode, count = 15) {
+  if (!roomPuzzleHistory[roomCode]) {
+    roomPuzzleHistory[roomCode] = [];
   }
-  return a;
+  const used = roomPuzzleHistory[roomCode];
+  // Get puzzles not yet used
+  let available = allPuzzles.filter((_, i) => !used.includes(i));
+  // If not enough fresh ones, reset history
+  if (available.length < count) {
+    roomPuzzleHistory[roomCode] = [];
+    available = [...allPuzzles];
+  }
+  // Shuffle available
+  const shuffled = available
+    .map((p, originalIndex) => ({ p, originalIndex: allPuzzles.indexOf(p) }))
+    .sort(() => Math.random() - 0.5);
+  const selected = shuffled.slice(0, count);
+  // Mark as used
+  selected.forEach(({ originalIndex }) => {
+    roomPuzzleHistory[roomCode].push(originalIndex);
+  });
+  return selected.map(({ p }) => p);
 }
 
-function points(rank) {
-  return { 1: 10, 2: 7, 3: 5 }[rank] || 2;
-}
-
-function playerNames(room) {
-  return room.players.map(p => p.name);
-}
-
-function leaderboard(room) {
-  return room.players
-    .map(p => ({ name: p.name, score: p.score }))
-    .sort((a, b) => b.score - a.score);
-}
-
-function log(msg) {
-  console.log(`[${new Date().toISOString()}] ${msg}`);
-}
-
-/** Shuffle the 4 options so correct answer isn't always first */
-function shuffledOptions(puzzle) {
-  return shuffle([...puzzle.options]);
+function shuffleOptions(options) {
+  return [...options].sort(() => Math.random() - 0.5);
 }
 
 io.on('connection', (socket) => {
-  log(`Connected: ${socket.id}`);
+  console.log('New connection:', socket.id);
 
-  // ── Create Room ──────────────────────────────────────────────────────────
-  socket.on('create-room', (data) => {
-    const roomCode = uniqueRoomCode();
-    const hostName = data?.playerName || data?.name || 'Host';
-    const totalRounds = Math.min(Math.max(data?.totalRounds || 10, 1), 50);
-
+  socket.on('create-room', ({ name, rounds }) => {
+    const roomCode = Math.random().toString(36).substring(2, 7).toUpperCase();
+    const puzzles = getRandomPuzzles(roomCode, parseInt(rounds) || 15);
     rooms[roomCode] = {
       host: socket.id,
-      hostName,
-      players: [{ id: socket.id, name: hostName, score: 0, online: true }],
+      hostName: name,
+      players: {},
+      puzzles,
       currentRound: 0,
-      totalRounds,
-      puzzles: [],
-      roundScorers: 0,
-      roundActive: false,
-      guessedThisRound: new Set(),
-      currentPuzzle: null
+      started: false,
+      hostTimeout: null,
+      totalRounds: parseInt(rounds) || 15
+    };
+    socket.join(roomCode);
+    socket.roomCode = roomCode;
+    socket.isHost = true;
+    socket.playerName = name;
+    socket.emit('room-created', { roomCode });
+    console.log(`Room ${roomCode} created by ${name}`);
+  });
+
+  socket.on('join-room', ({ name, roomCode }) => {
+    const room = rooms[roomCode];
+    if (!room) {
+      socket.emit('error', { message: 'Room not found' });
+      return;
+    }
+
+    // Check if this is a rejoin (player with same name already existed)
+    const existingPlayer = Object.values(room.players).find(p => p.name === name);
+    const isRejoin = !!existingPlayer;
+    let savedScore = 0;
+
+    if (isRejoin) {
+      // Remove old socket entry, keep score
+      const oldSocketId = Object.keys(room.players).find(id => room.players[id].name === name);
+      if (oldSocketId) {
+        savedScore = room.players[oldSocketId].score || 0;
+        delete room.players[oldSocketId];
+      }
+    }
+
+    // Check if this is the host rejoining
+    if (name === room.hostName) {
+      // Clear host timeout
+      if (room.hostTimeout) {
+        clearTimeout(room.hostTimeout);
+        room.hostTimeout = null;
+      }
+      room.host = socket.id;
+      socket.join(roomCode);
+      socket.roomCode = roomCode;
+      socket.isHost = true;
+      socket.playerName = name;
+      socket.emit('host-rejoined', {
+        roomCode,
+        currentRound: room.currentRound,
+        players: Object.values(room.players).map(p => ({ name: p.name, score: p.score })),
+        started: room.started
+      });
+      console.log(`Host ${name} rejoined room ${roomCode}`);
+      return;
+    }
+
+    room.players[socket.id] = {
+      name,
+      score: savedScore,
+      alreadyGuessed: false
     };
 
-    playerRooms[socket.id] = roomCode;
     socket.join(roomCode);
-    log(`Room ${roomCode} created by ${hostName}`);
-    socket.emit('room-created', { roomCode, totalRounds });
-  });
+    socket.roomCode = roomCode;
+    socket.isHost = false;
+    socket.playerName = name;
 
-  // ── Join Room (or Rejoin) ─────────────────────────────────────────────────
-  socket.on('join-room', (data, callback) => {
-    const cb = typeof callback === 'function' ? callback : () => {};
-    const roomCode = data?.roomCode?.toUpperCase();
-    const name = data?.playerName || data?.name;
-
-    if (!roomCode || !name) return cb({ error: 'Room code and name are required' });
-
-    const room = rooms[roomCode];
-    if (!room) return cb({ error: 'Room not found. Check the code and try again.' });
-
-    // Check if this is a REJOIN (same name already in room)
-    const existing = room.players.find(p => p.name === name);
-    if (existing) {
-      // Rejoin: update socket id, mark online
-      existing.id = socket.id;
-      existing.online = true;
-      playerRooms[socket.id] = roomCode;
-      socket.join(roomCode);
-
-      // If this rejoining player is the host, update host socket id
-      if (existing.name === room.hostName) {
-        room.host = socket.id;
-      }
-
-      log(`${name} REJOINED room ${roomCode} (score: ${existing.score})`);
-
-      cb({
-        success: true,
-        rejoin: true,
-        totalRounds: room.totalRounds,
-        players: playerNames(room),
-        currentScore: existing.score
-      });
-
-      // If game is active, send the current round state immediately
-      if (room.roundActive && room.currentPuzzle) {
-        socket.emit('round-start', {
-          roundNumber: room.currentRound + 1,
-          totalRounds: room.totalRounds,
-          emoji: room.currentPuzzle.emojis,
-          category: 'Telugu Movie',
-          hint: room.currentPuzzle.hint,
-          options: shuffledOptions(room.currentPuzzle),
-          alreadyGuessed: room.guessedThisRound.has(socket.id)
-        });
-      }
-
-      io.to(roomCode).emit('player-joined', {
-        players: playerNames(room),
-        onlinePlayers: room.players.filter(p => p.online).length
-      });
-
-      return;
-    }
-
-    // New player joining
-    if (room.roundActive) return cb({ error: 'Game already in progress. Wait for the next game.' });
-
-    room.players.push({ id: socket.id, name, score: 0, online: true });
-    playerRooms[socket.id] = roomCode;
-    socket.join(roomCode);
-    log(`${name} joined room ${roomCode}`);
-
-    cb({ success: true, totalRounds: room.totalRounds, players: playerNames(room), currentScore: 0 });
+    socket.emit('joined', {
+      name,
+      roomCode,
+      score: savedScore,
+      isRejoin
+    });
 
     io.to(roomCode).emit('player-joined', {
-      players: playerNames(room),
-      onlinePlayers: room.players.filter(p => p.online).length
+      name,
+      players: Object.values(room.players).map(p => ({ name: p.name, score: p.score }))
     });
+
+    console.log(`${name} ${isRejoin ? 're' : ''}joined room ${roomCode} with score ${savedScore}`);
   });
 
-  // ── Start Game ───────────────────────────────────────────────────────────
-  socket.on('start-game', (data) => {
-    const roomCode = data?.roomCode || playerRooms[socket.id];
-    const room = rooms[roomCode];
+  socket.on('start-game', () => {
+    const room = rooms[socket.roomCode];
     if (!room || room.host !== socket.id) return;
-    if (room.players.length < 2) {
-      socket.emit('error', { message: 'Need at least 2 players to start' });
-      return;
-    }
-
-    room.puzzles = shuffle(puzzles).slice(0, room.totalRounds);
+    room.started = true;
     room.currentRound = 0;
-    room.roundScorers = 0;
-    room.guessedThisRound = new Set();
-    room.roundActive = true;
-    room.currentPuzzle = room.puzzles[0];
-    room.players.forEach(p => (p.score = 0));
-
-    log(`Game started in ${roomCode} — ${room.totalRounds} rounds`);
-    emitRound(roomCode, room);
+    startRound(socket.roomCode);
   });
 
-  // ── Submit Guess (multiple choice) ───────────────────────────────────────
-  socket.on('submit-guess', (data) => {
-    const roomCode = data?.roomCode || playerRooms[socket.id];
-    const room = rooms[roomCode];
-    if (!room || !room.roundActive) return;
-    if (room.guessedThisRound.has(socket.id)) return;
+  socket.on('next-round', () => {
+    const room = rooms[socket.roomCode];
+    if (!room || room.host !== socket.id) return;
+    room.currentRound++;
+    if (room.currentRound >= room.puzzles.length) {
+      endGame(socket.roomCode);
+    } else {
+      startRound(socket.roomCode);
+    }
+  });
 
-    const guess = (data.guess || '').trim().toLowerCase();
-    if (!guess) return;
+  socket.on('submit-answer', ({ answer }) => {
+    const room = rooms[socket.roomCode];
+    if (!room || !room.started) return;
+    const player = room.players[socket.id];
+    if (!player || player.alreadyGuessed) return;
 
-    const isCorrect = room.currentPuzzle.answer.toLowerCase() === guess;
-
-    // Mark as guessed regardless (player used their one attempt)
-    room.guessedThisRound.add(socket.id);
+    const puzzle = room.puzzles[room.currentRound];
+    const isCorrect = answer.trim().toLowerCase() === puzzle.answer.trim().toLowerCase();
 
     if (isCorrect) {
-      room.roundScorers += 1;
-
-      const player = room.players.find(p => p.id === socket.id);
-      if (!player) return;
-
-      const pts = points(room.roundScorers);
-      player.score += pts;
-
-      log(`${player.name} guessed correctly in ${roomCode} (+${pts})`);
-
-      socket.emit('guess-result', {
-        isCorrect: true,
-        points: pts,
-        position: room.roundScorers,
-        totalScore: player.score
-      });
-
-      io.to(roomCode).emit('round-update', {
-        playerName: player.name,
-        position: room.roundScorers,
-        scorersCount: room.roundScorers
+      player.score += 10;
+      player.alreadyGuessed = true;
+      socket.emit('answer-result', { correct: true, answer: puzzle.answer });
+      io.to(socket.roomCode).emit('correct-guess', {
+        name: player.name,
+        answer: puzzle.answer,
+        players: Object.values(room.players).map(p => ({ name: p.name, score: p.score }))
       });
     } else {
-      socket.emit('guess-result', { isCorrect: false });
+      socket.emit('answer-result', { correct: false });
     }
   });
 
-  // ── Next Round ───────────────────────────────────────────────────────────
-  socket.on('next-round', (data) => {
-    const roomCode = data?.roomCode || playerRooms[socket.id];
-    const room = rooms[roomCode];
+  socket.on('end-game', () => {
+    const room = rooms[socket.roomCode];
     if (!room || room.host !== socket.id) return;
-
-    io.to(roomCode).emit('round-end', {
-      roundNumber: room.currentRound + 1,
-      answer: room.currentPuzzle.answer,
-      leaderboard: leaderboard(room)
-    });
-
-    room.currentRound += 1;
-    room.roundScorers = 0;
-    room.guessedThisRound = new Set();
-
-    if (room.currentRound >= room.totalRounds) {
-      room.roundActive = false;
-      log(`Game over in ${roomCode}`);
-      io.to(roomCode).emit('game-over', { leaderboard: leaderboard(room) });
-    } else {
-      room.currentPuzzle = room.puzzles[room.currentRound];
-      room.roundActive = true;
-      log(`Round ${room.currentRound + 1} in ${roomCode}`);
-      emitRound(roomCode, room);
-    }
+    endGame(socket.roomCode);
   });
 
-  // ── End Game ─────────────────────────────────────────────────────────────
-  socket.on('end-game', (data) => {
-    const roomCode = data?.roomCode || playerRooms[socket.id];
-    const room = rooms[roomCode];
-    if (!room || room.host !== socket.id) return;
-
-    room.roundActive = false;
-    log(`Game manually ended in ${roomCode}`);
-    io.to(roomCode).emit('game-over', { leaderboard: leaderboard(room) });
-  });
-
-  // ── Disconnect ───────────────────────────────────────────────────────────
   socket.on('disconnect', () => {
-    const roomCode = playerRooms[socket.id];
-    if (!roomCode || !rooms[roomCode]) { delete playerRooms[socket.id]; return; }
-
+    const roomCode = socket.roomCode;
+    if (!roomCode || !rooms[roomCode]) return;
     const room = rooms[roomCode];
-    const player = room.players.find(p => p.id === socket.id);
-    if (!player) { delete playerRooms[socket.id]; return; }
 
-    // Mark offline but keep in room so they can rejoin
-    player.online = false;
-    log(`${player.name} disconnected from ${roomCode} (kept for rejoin)`);
-
-    // If host disconnects, notify but keep room alive for 5 minutes
-    if (socket.id === room.host) {
-      io.to(roomCode).emit('host-disconnected', {
-        message: 'Host disconnected. They can rejoin with the same room code.'
-      });
-      // Give host 5 minutes to rejoin before destroying room
+    if (socket.isHost) {
+      console.log(`Host disconnected from room ${roomCode}, starting 5-min timeout`);
+      io.to(roomCode).emit('host-disconnected');
       room.hostTimeout = setTimeout(() => {
-        if (rooms[roomCode]) {
-          io.to(roomCode).emit('host-disconnected', { message: 'Host did not return — game ended.' });
-          delete rooms[roomCode];
-        }
-      }, 5 * 60 * 1000);
-    }
-
-    // Clean up all-offline rooms immediately only if no one is online
-    const anyOnline = room.players.some(p => p.online);
-    if (!anyOnline) {
-      // Keep room for rejoin window
-      setTimeout(() => {
-        if (rooms[roomCode] && !rooms[roomCode].players.some(p => p.online)) {
-          delete rooms[roomCode];
-          log(`Room ${roomCode} cleaned up — all players gone`);
-        }
-      }, 5 * 60 * 1000);
+        io.to(roomCode).emit('room-closed');
+        delete rooms[roomCode];
+        console.log(`Room ${roomCode} destroyed after host timeout`);
+      }, HOST_TIMEOUT);
     } else {
-      io.to(roomCode).emit('player-joined', {
-        players: playerNames(room),
-        onlinePlayers: room.players.filter(p => p.online).length
+      // Keep player in room with their score for rejoin
+      const player = room.players[socket.id];
+      if (player) {
+        console.log(`Player ${player.name} disconnected, score ${player.score} preserved`);
+        // Don't delete from room.players yet - allow rejoin
+        // Mark as disconnected but keep entry
+        room.players[socket.id].disconnected = true;
+      }
+      io.to(roomCode).emit('player-left', {
+        name: player ? player.name : 'unknown',
+        players: Object.values(room.players)
+          .filter(p => !p.disconnected)
+          .map(p => ({ name: p.name, score: p.score }))
       });
     }
-
-    delete playerRooms[socket.id];
   });
 });
 
-function emitRound(roomCode, room) {
-  const p = room.currentPuzzle;
-  const opts = shuffledOptions(p);
+function startRound(roomCode) {
+  const room = rooms[roomCode];
+  if (!room) return;
+
+  // Reset alreadyGuessed for all players
+  Object.values(room.players).forEach(p => { p.alreadyGuessed = false; });
+
+  const puzzle = room.puzzles[room.currentRound];
+  const shuffledOptions = shuffleOptions(puzzle.options);
+
   io.to(roomCode).emit('round-start', {
-    roundNumber: room.currentRound + 1,
-    totalRounds: room.totalRounds,
-    emoji: p.emojis,
-    category: 'Telugu Movie',
-    hint: p.hint,
-    options: opts
+    round: room.currentRound + 1,
+    total: room.puzzles.length,
+    emoji: puzzle.emoji,
+    hint: puzzle.hint,
+    options: shuffledOptions
   });
+  console.log(`Room ${roomCode} - Round ${room.currentRound + 1}: ${puzzle.answer}`);
+}
+
+function endGame(roomCode) {
+  const room = rooms[roomCode];
+  if (!room) return;
+
+  const finalScores = Object.values(room.players)
+    .sort((a, b) => b.score - a.score)
+    .map(p => ({ name: p.name, score: p.score }));
+
+  io.to(roomCode).emit('game-over', { finalScores });
+  console.log(`Game over in room ${roomCode}`);
 }
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log(`\n  🎉 Emoji Guess running → http://localhost:${PORT}\n`);
+  console.log(`Server running on port ${PORT}`);
 });
-
-process.on('SIGTERM', () => {
-  console.log('Shutting down...');
-  server.close(() => process.exit(0));
-});
-
-module.exports = server;

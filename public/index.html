@@ -2,33 +2,41 @@
 <html lang="te">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <title>vasavi GMR Kitty ✨</title>
 <script src="/socket.io/socket.io.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 
-/* ── DEEP SPACE BACKGROUND ── */
+/* ── MOBILE: kill 300ms tap delay globally ── */
+html { touch-action: manipulation; }
+* { -webkit-tap-highlight-color: transparent; }
+
 body {
   font-family:'Inter',sans-serif;
   min-height:100vh;
+  min-height:100dvh; /* dynamic viewport for mobile chrome bar */
   background:#0b0b14;
   color:#fff;
   display:flex;
   align-items:center;
   justify-content:center;
   overflow:hidden;
+  overscroll-behavior:none; /* prevent pull-to-refresh */
   position:relative;
+  -webkit-font-smoothing:antialiased;
 }
 
-/* Star field canvas layer */
 #stars-canvas {
   position:fixed;inset:0;
   pointer-events:none;z-index:0;
+  will-change:transform; /* GPU layer */
 }
 
-/* Warm glow orb behind content — matches screenshot */
 .glow-orb {
   position:fixed;
   width:480px;height:380px;
@@ -36,6 +44,7 @@ body {
   top:50%;left:50%;
   transform:translate(-50%,-50%);
   pointer-events:none;z-index:0;
+  will-change:opacity,transform;
   animation:orbPulse 6s ease-in-out infinite alternate;
 }
 @keyframes orbPulse {
@@ -43,7 +52,6 @@ body {
   100%{ opacity:1;   transform:translate(-50%,-50%) scale(1.1); }
 }
 
-/* Purple bloom top-left — matches screenshot */
 .bloom-tl {
   position:fixed;top:-80px;left:-80px;
   width:320px;height:320px;
@@ -54,7 +62,12 @@ body {
 .container {
   position:relative;z-index:1;
   max-width:480px;width:100%;
-  padding:24px 20px;
+  padding:20px 18px;
+  /* allow scroll if content taller than viewport on small screens */
+  max-height:100dvh;
+  overflow-y:auto;
+  overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
 }
 
 /* ── SCREENS ── */
@@ -63,9 +76,10 @@ body {
 
 /* ── TITLE BLOCK ── */
 .title-icon {
-  text-align:center;font-size:3.2rem;
-  margin-bottom:12px;
+  text-align:center;font-size:3rem;
+  margin-bottom:10px;
   filter:drop-shadow(0 0 18px rgba(255,180,80,0.5));
+  will-change:transform;
   animation:iconBounce 3s ease-in-out infinite;
 }
 @keyframes iconBounce {
@@ -74,7 +88,7 @@ body {
 }
 .title-main {
   text-align:center;
-  font-size:2.4rem;font-weight:900;
+  font-size:2.2rem;font-weight:900;
   background:linear-gradient(90deg,#e879f9,#a855f7,#818cf8);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
   letter-spacing:-0.5px;margin-bottom:6px;
@@ -83,10 +97,10 @@ body {
   text-align:center;
   font-size:0.78rem;font-weight:700;
   letter-spacing:3px;text-transform:uppercase;
-  color:#d97706;margin-bottom:28px;
+  color:#d97706;margin-bottom:24px;
 }
 
-/* ── BUTTONS ── */
+/* ── BUTTONS — instant touch response ── */
 .btn-create {
   display:block;width:100%;
   padding:17px 20px;border:none;
@@ -98,8 +112,11 @@ body {
   border-radius:14px;cursor:pointer;
   margin-bottom:12px;
   box-shadow:0 0 28px rgba(168,85,247,0.45),0 4px 16px rgba(0,0,0,0.4);
-  transition:all 0.2s;
+  transition:transform 0.1s,box-shadow 0.1s; /* faster on mobile */
   position:relative;overflow:hidden;
+  will-change:transform;
+  user-select:none;-webkit-user-select:none;
+  touch-action:manipulation;
   animation:btnShimmerAnim 4s ease-in-out infinite;
 }
 @keyframes btnShimmerAnim {
@@ -107,7 +124,7 @@ body {
   50%{background-position:100% 50%;}
   100%{background-position:0% 50%;}
 }
-.btn-create:hover{transform:translateY(-2px);box-shadow:0 0 40px rgba(168,85,247,0.65),0 6px 20px rgba(0,0,0,0.4);}
+.btn-create:active{transform:scale(0.97);opacity:0.9;}
 .btn-create::after{
   content:'';position:absolute;top:0;left:-80%;width:60%;height:100%;
   background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);
@@ -128,23 +145,27 @@ body {
   margin-bottom:12px;
   backdrop-filter:blur(10px);
   box-shadow:0 4px 16px rgba(0,0,0,0.3);
-  transition:all 0.2s;
+  transition:transform 0.1s,background 0.15s;
+  will-change:transform;
+  user-select:none;-webkit-user-select:none;
+  touch-action:manipulation;
 }
-.btn-join:hover{background:rgba(255,255,255,0.1);border-color:rgba(168,85,247,0.5);transform:translateY(-2px);}
+.btn-join:active{transform:scale(0.97);background:rgba(255,255,255,0.1);}
 
-/* Generic action buttons */
 button {
   display:block;width:100%;
   padding:15px 20px;border:none;
   font-family:'Inter',sans-serif;font-size:0.88rem;font-weight:800;
   letter-spacing:2px;text-transform:uppercase;
   border-radius:14px;cursor:pointer;
-  transition:all 0.2s;margin-bottom:10px;
-  color:#fff;
+  transition:transform 0.1s,opacity 0.1s;
+  margin-bottom:10px;color:#fff;
+  will-change:transform;
+  user-select:none;-webkit-user-select:none;
+  touch-action:manipulation;
 }
 button:last-child{margin-bottom:0;}
-button:hover{transform:translateY(-2px);}
-button:active{transform:translateY(0);}
+button:active{transform:scale(0.97);opacity:0.88;}
 
 .btn-start {
   background:linear-gradient(90deg,#10b981,#059669);
@@ -164,14 +185,18 @@ button:active{transform:translateY(0);}
   box-shadow:0 0 28px rgba(168,85,247,0.45);
 }
 
-/* ── INPUTS ── */
+/* ── INPUTS — bigger tap targets on mobile ── */
 input[type=text],input[type=number]{
-  display:block;width:100%;padding:14px 18px;margin-bottom:12px;
+  display:block;width:100%;
+  padding:15px 18px; /* slightly taller = easier to tap */
+  margin-bottom:12px;
   background:rgba(255,255,255,0.06);
   border:1.5px solid rgba(255,255,255,0.1);
   border-radius:12px;color:#fff;
-  font-family:'Inter',sans-serif;font-size:0.95rem;font-weight:600;
-  transition:all 0.2s;backdrop-filter:blur(8px);
+  font-family:'Inter',sans-serif;font-size:1rem;font-weight:600;
+  transition:border-color 0.15s,background 0.15s;
+  -webkit-appearance:none; /* iOS removes inner shadow */
+  touch-action:manipulation;
 }
 input::placeholder{color:rgba(255,255,255,0.3);}
 input:focus{outline:none;border-color:rgba(168,85,247,0.6);background:rgba(168,85,247,0.08);box-shadow:0 0 0 3px rgba(168,85,247,0.15);}
@@ -191,7 +216,7 @@ input:focus{outline:none;border-color:rgba(168,85,247,0.6);background:rgba(168,8
 }
 .rc-label{font-size:0.7rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:6px;}
 .rc-code{
-  font-size:3rem;font-weight:900;letter-spacing:14px;
+  font-size:2.8rem;font-weight:900;letter-spacing:14px;
   background:linear-gradient(90deg,#e879f9,#a855f7,#818cf8);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
   filter:drop-shadow(0 0 12px rgba(168,85,247,0.4));
@@ -202,8 +227,9 @@ input:focus{outline:none;border-color:rgba(168,85,247,0.6);background:rgba(168,8
 .card{
   background:rgba(255,255,255,0.04);
   border:1px solid rgba(255,255,255,0.08);
-  border-radius:20px;padding:22px;
+  border-radius:20px;padding:20px;
   backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
   margin-bottom:16px;
   box-shadow:0 8px 32px rgba(0,0,0,0.4);
   position:relative;overflow:hidden;
@@ -215,27 +241,16 @@ input:focus{outline:none;border-color:rgba(168,85,247,0.6);background:rgba(168,8
 }
 @keyframes cardSweep{0%{left:-60%;}55%{left:140%;}100%{left:140%;}}
 
-/* ── SECTION LABEL ── */
-.sec-lbl{
-  font-size:0.7rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;
-  color:rgba(168,85,247,0.9);margin-bottom:14px;
-}
+.sec-lbl{font-size:0.7rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(168,85,247,0.9);margin-bottom:14px;}
+.round-hdr{text-align:center;font-size:0.78rem;font-weight:800;letter-spacing:4px;text-transform:uppercase;color:rgba(192,132,252,0.85);margin-bottom:14px;}
 
-/* ── ROUND HEADER ── */
-.round-hdr{
-  text-align:center;font-size:0.78rem;font-weight:800;
-  letter-spacing:4px;text-transform:uppercase;
-  color:rgba(192,132,252,0.85);margin-bottom:14px;
-}
-
-/* ── EMOJI BOX ── */
 .emoji-box{
   background:rgba(255,255,255,0.03);
   border:1px solid rgba(255,255,255,0.08);
-  border-radius:20px;padding:28px 16px;
-  text-align:center;font-size:4rem;letter-spacing:12px;
+  border-radius:20px;padding:24px 16px;
+  text-align:center;font-size:3.6rem;letter-spacing:10px;
   margin-bottom:14px;line-height:1.3;
-  box-shadow:0 0 40px rgba(180,100,20,0.12),inset 0 0 30px rgba(255,255,255,0.01);
+  will-change:box-shadow;
   animation:emojiGlow 4s ease-in-out infinite alternate;
 }
 @keyframes emojiGlow{
@@ -243,14 +258,13 @@ input:focus{outline:none;border-color:rgba(168,85,247,0.6);background:rgba(168,8
   100%{box-shadow:0 0 50px rgba(236,72,153,0.25),0 0 20px rgba(180,100,20,0.15);}
 }
 
-/* ── HINT PILL ── */
 .hint-pill{text-align:center;margin-bottom:16px;}
 .hint-pill span{
   display:inline-block;
   background:linear-gradient(90deg,#d97706,#f59e0b,#fbbf24);
   color:#1c0a00;padding:8px 26px;border-radius:50px;
   font-weight:800;font-size:0.88rem;letter-spacing:1px;text-transform:uppercase;
-  box-shadow:0 0 20px rgba(245,158,11,0.4);
+  will-change:box-shadow;
   animation:hintGlow 2.5s ease-in-out infinite;
 }
 @keyframes hintGlow{
@@ -258,133 +272,75 @@ input:focus{outline:none;border-color:rgba(168,85,247,0.6);background:rgba(168,8
   50%{box-shadow:0 0 32px rgba(245,158,11,0.65);}
 }
 
-/* ── GUESSES CARD ── */
-.guesses-card{
-  background:rgba(16,185,129,0.05);
-  border:1px solid rgba(16,185,129,0.15);
-  border-radius:18px;padding:18px;margin-bottom:16px;
-}
+.guesses-card{background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.15);border-radius:18px;padding:18px;margin-bottom:16px;}
 .g-title{font-size:0.7rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#34d399;margin-bottom:12px;}
-.guesses-feed{min-height:70px;max-height:190px;overflow-y:auto;}
-.guess-item{
-  padding:8px 12px;border-radius:8px;
-  background:rgba(52,211,153,0.08);border-left:3px solid rgba(52,211,153,0.6);
-  font-size:0.85rem;color:rgba(255,255,255,0.8);
-  margin-bottom:6px;animation:fadeSlide 0.3s ease;
-}
+.guesses-feed{min-height:70px;max-height:180px;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.guess-item{padding:8px 12px;border-radius:8px;background:rgba(52,211,153,0.08);border-left:3px solid rgba(52,211,153,0.6);font-size:0.85rem;color:rgba(255,255,255,0.8);margin-bottom:6px;animation:fadeSlide 0.3s ease;}
 @keyframes fadeSlide{from{opacity:0;transform:translateY(-5px);}to{opacity:1;transform:translateY(0);}}
 .wait-msg{text-align:center;color:rgba(255,255,255,0.22);font-size:0.82rem;padding:10px 0;}
 
-/* ── PLAYER LIST ── */
 .player-list{list-style:none;}
-.player-list li{
-  display:flex;justify-content:space-between;align-items:center;
-  padding:10px 14px;
-  background:rgba(255,255,255,0.03);
-  border:1px solid rgba(255,255,255,0.06);
-  border-radius:10px;margin-bottom:7px;
-  font-size:0.88rem;color:rgba(255,255,255,0.8);
-}
-.pscore{
-  background:linear-gradient(90deg,#e879f9,#a855f7);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  font-weight:800;font-size:0.85rem;
-}
+.player-list li{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;margin-bottom:7px;font-size:0.88rem;color:rgba(255,255,255,0.8);}
+.pscore{background:linear-gradient(90deg,#e879f9,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:800;font-size:0.85rem;}
 
-/* ── SCORE CHIP ── */
 .score-row{text-align:center;margin-bottom:12px;}
-.score-chip{
-  display:inline-block;
-  background:rgba(168,85,247,0.12);
-  border:1px solid rgba(168,85,247,0.3);
-  color:#d8b4fe;padding:5px 18px;border-radius:50px;
-  font-size:0.82rem;font-weight:700;letter-spacing:1px;
-}
+.score-chip{display:inline-block;background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.3);color:#d8b4fe;padding:5px 18px;border-radius:50px;font-size:0.82rem;font-weight:700;letter-spacing:1px;}
 
-/* ── OPTIONS GRID ── */
+/* ── OPTIONS — bigger, more tappable on mobile ── */
 .options-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
 .opt-btn{
-  padding:16px 10px;
+  padding:18px 10px; /* tall enough for thumbs */
   background:rgba(255,255,255,0.05);
   border:1.5px solid rgba(255,255,255,0.1);
   border-radius:14px;color:#fff;
   font-family:'Inter',sans-serif;font-size:0.92rem;font-weight:700;
-  cursor:pointer;transition:all 0.18s;
-  text-align:center;line-height:1.35;min-height:60px;
+  cursor:pointer;
+  transition:transform 0.1s,background 0.12s,border-color 0.12s;
+  text-align:center;line-height:1.35;min-height:64px;
   display:flex;align-items:center;justify-content:center;
   text-transform:none;letter-spacing:0;
   position:relative;overflow:hidden;
   backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  will-change:transform;
+  user-select:none;-webkit-user-select:none;
+  touch-action:manipulation;
 }
-.opt-btn::after{
-  content:'';position:absolute;top:0;left:-80%;width:60%;height:100%;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent);
-  transform:skewX(-20deg);transition:left 0.35s;
+.opt-btn:active:not(:disabled){
+  transform:scale(0.95);
+  background:rgba(168,85,247,0.2);
+  border-color:rgba(168,85,247,0.6);
 }
-.opt-btn:hover:not(:disabled)::after{left:140%;}
-.opt-btn:hover:not(:disabled){
-  background:rgba(168,85,247,0.18);border-color:rgba(168,85,247,0.5);
-  transform:translateY(-3px);
-  box-shadow:0 6px 20px rgba(168,85,247,0.25);
-}
-.opt-btn.correct{
-  background:rgba(16,185,129,0.2) !important;
-  border-color:#10b981 !important;color:#6ee7b7 !important;
-  box-shadow:0 0 20px rgba(16,185,129,0.35) !important;
-  animation:correctPop 0.35s ease;
-}
+.opt-btn.correct{background:rgba(16,185,129,0.2)!important;border-color:#10b981!important;color:#6ee7b7!important;box-shadow:0 0 20px rgba(16,185,129,0.35)!important;animation:correctPop 0.35s ease;}
 @keyframes correctPop{0%{transform:scale(1);}50%{transform:scale(1.06);}100%{transform:scale(1);}}
-.opt-btn.wrong{
-  background:rgba(239,68,68,0.07) !important;
-  border-color:rgba(239,68,68,0.2) !important;
-  color:rgba(255,255,255,0.2) !important;
-}
+.opt-btn.wrong{background:rgba(239,68,68,0.07)!important;border-color:rgba(239,68,68,0.2)!important;color:rgba(255,255,255,0.2)!important;}
 .opt-btn:disabled{cursor:not-allowed;}
 
-/* ── STATUS BAR ── */
-.status-bar{
-  text-align:center;padding:10px 14px;border-radius:10px;
-  font-size:0.82rem;font-weight:700;margin-bottom:10px;letter-spacing:0.5px;
-}
+.status-bar{text-align:center;padding:10px 14px;border-radius:10px;font-size:0.82rem;font-weight:700;margin-bottom:10px;letter-spacing:0.5px;}
 .status-bar.inf{background:rgba(99,102,241,0.1);color:#a5b4fc;border:1px solid rgba(99,102,241,0.2);}
 .status-bar.ok {background:rgba(16,185,129,0.1);color:#34d399;border:1px solid rgba(16,185,129,0.2);}
 .status-bar.err{background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.2);}
 
-/* ── FINAL SCORES ── */
 .final-list{list-style:none;}
-.final-list li{
-  display:flex;align-items:center;gap:14px;
-  padding:14px 16px;border-radius:14px;margin-bottom:10px;
-  background:rgba(255,255,255,0.04);
-  border:1px solid rgba(255,255,255,0.07);
-  transition:all 0.2s;
-}
-.final-list li:first-child{
-  background:rgba(217,119,6,0.12);
-  border-color:rgba(251,191,36,0.3);
-  box-shadow:0 0 20px rgba(251,191,36,0.1);
-}
+.final-list li{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:14px;margin-bottom:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);}
+.final-list li:first-child{background:rgba(217,119,6,0.12);border-color:rgba(251,191,36,0.3);box-shadow:0 0 20px rgba(251,191,36,0.1);}
 .medal{font-size:1.6rem;flex-shrink:0;width:38px;text-align:center;}
 .final-name{flex:1;font-weight:700;font-size:0.92rem;color:rgba(255,255,255,0.9);}
-.final-pts{
-  font-weight:900;font-size:1rem;
-  background:linear-gradient(90deg,#e879f9,#a855f7);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-}
+.final-pts{font-weight:900;font-size:1rem;background:linear-gradient(90deg,#e879f9,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 
-/* ── TOAST ── */
 #toast{
-  position:fixed;top:20px;right:20px;
+  position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-10px) scale(0.95);
   background:rgba(13,13,26,0.96);
   border:1px solid rgba(168,85,247,0.3);
-  color:#e9d5ff;padding:11px 18px;border-radius:12px;
+  color:#e9d5ff;padding:10px 20px;border-radius:12px;
   font-size:0.84rem;font-weight:700;z-index:9999;
   opacity:0;pointer-events:none;
-  transform:translateX(16px) scale(0.96);
   transition:all 0.22s cubic-bezier(0.34,1.56,0.64,1);
-  max-width:280px;box-shadow:0 8px 28px rgba(0,0,0,0.5),0 0 16px rgba(168,85,247,0.1);
+  max-width:88vw;text-align:center;
+  box-shadow:0 8px 28px rgba(0,0,0,0.5);
+  white-space:nowrap;
 }
-#toast.show{opacity:1;transform:translateX(0) scale(1);pointer-events:auto;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0) scale(1);pointer-events:auto;}
 </style>
 </head>
 <body>
@@ -393,13 +349,12 @@ input:focus{outline:none;border-color:rgba(168,85,247,0.6);background:rgba(168,8
 <canvas id="stars-canvas"></canvas>
 <div id="toast"></div>
 <div class="container">
-
   <!-- HOME -->
   <div class="screen active" id="s-home">
     <div class="title-icon">🎉</div>
     <div class="title-main">vasavi GMR Kitty</div>
     <div class="title-sub">తెలుగు సినిమా ఎమోజీ గేమ్</div>
-    <input type="text" id="home-name" placeholder="మీ పేరు రాయండి..."/>
+    <input type="text" id="home-name" placeholder="మీ పేరు రాయండి..." autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false"/>
     <button class="btn-create" onclick="goCreate()">CREATE GAME (HOST)</button>
     <button class="btn-join"   onclick="goJoin()">JOIN GAME</button>
   </div>
@@ -410,7 +365,7 @@ input:focus{outline:none;border-color:rgba(168,85,247,0.6);background:rgba(168,8
     <div class="title-main">vasavi GMR Kitty</div>
     <div class="title-sub">కొత్త గేమ్ సెటప్</div>
     <div class="card">
-      <input type="number" id="rounds-input" placeholder="రౌండ్లు సంఖ్య (default: 15)" min="5" max="40"/>
+      <input type="number" id="rounds-input" placeholder="రౌండ్లు సంఖ్య (default: 15)" min="5" max="40" inputmode="numeric"/>
       <button class="btn-create" onclick="createRoom()">CREATE ROOM</button>
       <button class="btn-back"   onclick="show('s-home')">← వెనక్కి</button>
     </div>
@@ -427,7 +382,7 @@ input:focus{outline:none;border-color:rgba(168,85,247,0.6);background:rgba(168,8
     <div class="card">
       <div class="sec-lbl">👥 జాయిన్ అయిన ప్లేయర్లు</div>
       <ul class="player-list" id="lobby-players">
-        <li><span class="wait-msg" style="color:rgba(255,255,255,0.25);font-size:0.82rem;">ప్లేయర్లు వేచి ఉన్నారు...</span></li>
+        <li><span style="color:rgba(255,255,255,0.25);font-size:0.82rem;">ప్లేయర్లు వేచి ఉన్నారు...</span></li>
       </ul>
     </div>
     <button class="btn-start" onclick="startGame()">▶ గేమ్ స్టార్ట్ చేయి</button>
@@ -454,8 +409,8 @@ input:focus{outline:none;border-color:rgba(168,85,247,0.6);background:rgba(168,8
     <div class="title-main">vasavi GMR Kitty</div>
     <div class="title-sub">గేమ్ జాయిన్ అవు</div>
     <div class="card">
-      <input type="text" id="join-name" placeholder="మీ పేరు రాయండి..."/>
-      <input type="text" id="join-code" placeholder="రూమ్ కోడ్ రాయండి..." style="text-transform:uppercase"/>
+      <input type="text" id="join-name" placeholder="మీ పేరు రాయండి..." autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false"/>
+      <input type="text" id="join-code" placeholder="రూమ్ కోడ్ రాయండి..." style="text-transform:uppercase" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"/>
       <button class="btn-create" onclick="joinRoom()">JOIN ROOM</button>
       <button class="btn-back"   onclick="show('s-home')">← వెనక్కి</button>
     </div>
@@ -502,42 +457,51 @@ input:focus{outline:none;border-color:rgba(168,85,247,0.6);background:rgba(168,8
 </div>
 
 <script>
-/* ── STAR FIELD ── */
+/* ── STAR FIELD — reduced count on mobile for perf ── */
 (function(){
   const canvas = document.getElementById('stars-canvas');
   const ctx = canvas.getContext('2d');
-  let stars = [];
+  let stars = [], raf;
+  const isMobile = window.innerWidth < 600;
+
   function resize(){
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
   }
   function initStars(){
     stars = [];
-    const count = Math.floor((canvas.width * canvas.height) / 6000);
+    /* fewer stars on mobile = smoother animation */
+    const density = isMobile ? 12000 : 5500;
+    const count = Math.floor((canvas.width * canvas.height) / density);
     for(let i=0;i<count;i++){
       stars.push({
-        x: Math.random()*canvas.width,
-        y: Math.random()*canvas.height,
-        r: Math.random()*1.5+0.3,
-        a: Math.random(),
-        speed: Math.random()*0.008+0.003
+        x:Math.random()*canvas.width,
+        y:Math.random()*canvas.height,
+        r:Math.random()*1.4+0.3,
+        a:Math.random()*Math.PI*2,
+        speed:Math.random()*0.007+0.002
       });
     }
   }
   function draw(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
     stars.forEach(s=>{
-      s.a += s.speed;
-      const alpha = (Math.sin(s.a)*0.5+0.5)*0.7+0.1;
+      s.a+=s.speed;
+      const alpha=(Math.sin(s.a)*0.5+0.5)*0.65+0.1;
       ctx.beginPath();
       ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
-      ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+      ctx.fillStyle=`rgba(255,255,255,${alpha})`;
       ctx.fill();
     });
-    requestAnimationFrame(draw);
+    raf=requestAnimationFrame(draw);
   }
   resize(); initStars(); draw();
-  window.addEventListener('resize',()=>{resize();initStars();});
+  /* pause when tab hidden — saves battery on mobile */
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden){ cancelAnimationFrame(raf); }
+    else { draw(); }
+  });
+  window.addEventListener('resize',()=>{resize();initStars();},{passive:true});
 })();
 
 /* ── APP ── */
@@ -546,18 +510,38 @@ let myName='',myRoom='',isHost=false,myScore=0;
 let hasAnswered=false,lastAnswer='';
 
 const SS={
-  save:(n,r,h)=>{sessionStorage.setItem('vgk_n',n);sessionStorage.setItem('vgk_r',r);sessionStorage.setItem('vgk_h',h?'1':'0');},
-  clear:()=>{['vgk_n','vgk_r','vgk_h'].forEach(k=>sessionStorage.removeItem(k));},
-  get:()=>({n:sessionStorage.getItem('vgk_n'),r:sessionStorage.getItem('vgk_r'),h:sessionStorage.getItem('vgk_h')})
+  save:(n,r,h)=>{try{sessionStorage.setItem('vgk_n',n);sessionStorage.setItem('vgk_r',r);sessionStorage.setItem('vgk_h',h?'1':'0');}catch(e){}},
+  clear:()=>{try{['vgk_n','vgk_r','vgk_h'].forEach(k=>sessionStorage.removeItem(k));}catch(e){}},
+  get:()=>{try{return{n:sessionStorage.getItem('vgk_n'),r:sessionStorage.getItem('vgk_r'),h:sessionStorage.getItem('vgk_h')};}catch(e){return{};}}
 };
 
-function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  /* scroll to top on screen change — important on mobile */
+  const container = document.querySelector('.container');
+  if(container) container.scrollTop=0;
+}
 
 let _tt;
 function toast(msg,ms=3200){
   const t=document.getElementById('toast');
   t.textContent=msg;t.classList.add('show');
   clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),ms);
+}
+
+/* ── instant-tap helper: fires on touchstart AND click ── */
+function fastTap(el,fn){
+  let fired=false;
+  el.addEventListener('touchstart',e=>{
+    fired=true;
+    e.preventDefault(); /* prevents ghost click 300ms later */
+    fn();
+  },{passive:false});
+  el.addEventListener('click',()=>{
+    if(!fired) fn();
+    fired=false;
+  });
 }
 
 function goCreate(){
@@ -594,8 +578,15 @@ function renderOptions(opts){
   grid.innerHTML='';
   opts.forEach(opt=>{
     const btn=document.createElement('button');
-    btn.className='opt-btn';btn.textContent=opt;
-    btn.onclick=()=>{if(hasAnswered)return;hasAnswered=true;lastAnswer=opt;document.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);socket.emit('submit-answer',{answer:opt});};
+    btn.className='opt-btn';
+    btn.textContent=opt;
+    /* use fastTap for instant response on mobile */
+    fastTap(btn,()=>{
+      if(hasAnswered||btn.disabled)return;
+      hasAnswered=true;lastAnswer=opt;
+      document.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);
+      socket.emit('submit-answer',{answer:opt});
+    });
     grid.appendChild(btn);
   });
   document.getElementById('p-status').innerHTML='';
@@ -608,7 +599,10 @@ function highlightAnswer(ans,correct){
 }
 function renderPlayers(players,ulId){
   const ul=document.getElementById(ulId);
-  if(!players||!players.length){ul.innerHTML='<li><span style="color:rgba(255,255,255,0.25);font-size:0.82rem;">వేచి ఉంది...</span></li>';return;}
+  if(!players||!players.length){
+    ul.innerHTML='<li><span style="color:rgba(255,255,255,0.25);font-size:0.82rem;">వేచి ఉంది...</span></li>';
+    return;
+  }
   ul.innerHTML=players.map(p=>`<li><span>${p.name}</span><span class="pscore">${p.score} pts</span></li>`).join('');
 }
 function renderFinal(scores){
@@ -619,6 +613,7 @@ function renderFinal(scores){
   show('s-gameover');
 }
 
+/* ── SOCKET ── */
 socket.on('room-created',({roomCode})=>{
   myRoom=roomCode;document.getElementById('lobby-code').textContent=roomCode;
   SS.save(myName,roomCode,true);show('s-host-lobby');
@@ -668,6 +663,7 @@ socket.on('host-disconnected',()=>toast('⚠️ హోస్ట్ డిస్�
 socket.on('room-closed',()=>{toast('❌ రూమ్ క్లోజ్ అయింది.',5000);SS.clear();setTimeout(()=>location.reload(),3000);});
 socket.on('game-over',({finalScores})=>renderFinal(finalScores));
 socket.on('error',({message})=>toast(`❌ ${message}`));
+
 socket.on('connect',()=>{
   const {n,r,h}=SS.get();
   if(n&&r){myName=n;myRoom=r;isHost=h==='1';socket.emit('join-room',{name:n,roomCode:r});}

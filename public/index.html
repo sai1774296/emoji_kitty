@@ -6,27 +6,26 @@
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-<title>vasavi GMR Kitty ✨</title>
+<title>vasavi kitty ✨</title>
 <script src="/socket.io/socket.io.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 
-/* ── MOBILE: kill 300ms tap delay globally ── */
 html { touch-action: manipulation; }
 * { -webkit-tap-highlight-color: transparent; }
 
 body {
   font-family:'Inter',sans-serif;
   min-height:100vh;
-  min-height:100dvh; /* dynamic viewport for mobile chrome bar */
+  min-height:100dvh;
   background:#0b0b14;
   color:#fff;
   display:flex;
   align-items:center;
   justify-content:center;
   overflow:hidden;
-  overscroll-behavior:none; /* prevent pull-to-refresh */
+  overscroll-behavior:none;
   position:relative;
   -webkit-font-smoothing:antialiased;
 }
@@ -34,7 +33,7 @@ body {
 #stars-canvas {
   position:fixed;inset:0;
   pointer-events:none;z-index:0;
-  will-change:transform; /* GPU layer */
+  will-change:transform;
 }
 
 .glow-orb {
@@ -63,22 +62,20 @@ body {
   position:relative;z-index:1;
   max-width:480px;width:100%;
   padding:20px 18px;
-  /* allow scroll if content taller than viewport on small screens */
   max-height:100dvh;
   overflow-y:auto;
   overflow-x:hidden;
   -webkit-overflow-scrolling:touch;
 }
 
-/* ── SCREENS ── */
 .screen{display:none;}
 .screen.active{display:block;}
 
-/* ── TITLE BLOCK ── */
+/* ── TITLE — warm orange/amber, visible on dark AND light ── */
 .title-icon {
   text-align:center;font-size:3rem;
   margin-bottom:10px;
-  filter:drop-shadow(0 0 18px rgba(255,180,80,0.5));
+  filter:drop-shadow(0 0 18px rgba(251,146,60,0.55));
   will-change:transform;
   animation:iconBounce 3s ease-in-out infinite;
 }
@@ -89,9 +86,10 @@ body {
 .title-main {
   text-align:center;
   font-size:2.2rem;font-weight:900;
-  background:linear-gradient(90deg,#e879f9,#a855f7,#818cf8);
+  background:linear-gradient(90deg,#f97316,#fb923c,#fbbf24);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
   letter-spacing:-0.5px;margin-bottom:6px;
+  filter:drop-shadow(0 2px 12px rgba(251,146,60,0.4));
 }
 .title-sub {
   text-align:center;
@@ -100,7 +98,6 @@ body {
   color:#d97706;margin-bottom:24px;
 }
 
-/* ── BUTTONS — instant touch response ── */
 .btn-create {
   display:block;width:100%;
   padding:17px 20px;border:none;
@@ -112,7 +109,7 @@ body {
   border-radius:14px;cursor:pointer;
   margin-bottom:12px;
   box-shadow:0 0 28px rgba(168,85,247,0.45),0 4px 16px rgba(0,0,0,0.4);
-  transition:transform 0.1s,box-shadow 0.1s; /* faster on mobile */
+  transition:transform 0.1s,box-shadow 0.1s;
   position:relative;overflow:hidden;
   will-change:transform;
   user-select:none;-webkit-user-select:none;
@@ -185,45 +182,42 @@ button:active{transform:scale(0.97);opacity:0.88;}
   box-shadow:0 0 28px rgba(168,85,247,0.45);
 }
 
-/* ── INPUTS — bigger tap targets on mobile ── */
 input[type=text],input[type=number]{
   display:block;width:100%;
-  padding:15px 18px; /* slightly taller = easier to tap */
+  padding:15px 18px;
   margin-bottom:12px;
   background:rgba(255,255,255,0.06);
   border:1.5px solid rgba(255,255,255,0.1);
   border-radius:12px;color:#fff;
   font-family:'Inter',sans-serif;font-size:1rem;font-weight:600;
   transition:border-color 0.15s,background 0.15s;
-  -webkit-appearance:none; /* iOS removes inner shadow */
+  -webkit-appearance:none;
   touch-action:manipulation;
 }
 input::placeholder{color:rgba(255,255,255,0.3);}
-input:focus{outline:none;border-color:rgba(168,85,247,0.6);background:rgba(168,85,247,0.08);box-shadow:0 0 0 3px rgba(168,85,247,0.15);}
+input:focus{outline:none;border-color:rgba(249,115,22,0.6);background:rgba(249,115,22,0.07);box-shadow:0 0 0 3px rgba(249,115,22,0.15);}
 
-/* ── ROOM CODE BOX ── */
 .room-code-box{
   text-align:center;
   background:rgba(255,255,255,0.03);
-  border:1.5px solid rgba(168,85,247,0.25);
+  border:1.5px solid rgba(249,115,22,0.25);
   border-radius:18px;padding:20px 16px;margin-bottom:20px;
-  box-shadow:0 0 30px rgba(168,85,247,0.1);
+  box-shadow:0 0 30px rgba(249,115,22,0.1);
   position:relative;overflow:hidden;
 }
 .room-code-box::before{
   content:'';position:absolute;inset:0;
-  background:linear-gradient(135deg,rgba(168,85,247,0.05),rgba(236,72,153,0.05));
+  background:linear-gradient(135deg,rgba(249,115,22,0.05),rgba(251,191,36,0.05));
 }
 .rc-label{font-size:0.7rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:6px;}
 .rc-code{
   font-size:2.8rem;font-weight:900;letter-spacing:14px;
-  background:linear-gradient(90deg,#e879f9,#a855f7,#818cf8);
+  background:linear-gradient(90deg,#f97316,#fb923c,#fbbf24);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  filter:drop-shadow(0 0 12px rgba(168,85,247,0.4));
+  filter:drop-shadow(0 0 12px rgba(249,115,22,0.4));
   line-height:1.2;
 }
 
-/* ── GLASS CARD ── */
 .card{
   background:rgba(255,255,255,0.04);
   border:1px solid rgba(255,255,255,0.08);
@@ -241,8 +235,8 @@ input:focus{outline:none;border-color:rgba(168,85,247,0.6);background:rgba(168,8
 }
 @keyframes cardSweep{0%{left:-60%;}55%{left:140%;}100%{left:140%;}}
 
-.sec-lbl{font-size:0.7rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(168,85,247,0.9);margin-bottom:14px;}
-.round-hdr{text-align:center;font-size:0.78rem;font-weight:800;letter-spacing:4px;text-transform:uppercase;color:rgba(192,132,252,0.85);margin-bottom:14px;}
+.sec-lbl{font-size:0.7rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(249,115,22,0.9);margin-bottom:14px;}
+.round-hdr{text-align:center;font-size:0.78rem;font-weight:800;letter-spacing:4px;text-transform:uppercase;color:rgba(251,146,60,0.9);margin-bottom:14px;}
 
 .emoji-box{
   background:rgba(255,255,255,0.03);
@@ -254,8 +248,8 @@ input:focus{outline:none;border-color:rgba(168,85,247,0.6);background:rgba(168,8
   animation:emojiGlow 4s ease-in-out infinite alternate;
 }
 @keyframes emojiGlow{
-  0%{box-shadow:0 0 30px rgba(168,85,247,0.15);}
-  100%{box-shadow:0 0 50px rgba(236,72,153,0.25),0 0 20px rgba(180,100,20,0.15);}
+  0%{box-shadow:0 0 30px rgba(249,115,22,0.15);}
+  100%{box-shadow:0 0 50px rgba(251,191,36,0.25),0 0 20px rgba(180,100,20,0.2);}
 }
 
 .hint-pill{text-align:center;margin-bottom:16px;}
@@ -281,15 +275,14 @@ input:focus{outline:none;border-color:rgba(168,85,247,0.6);background:rgba(168,8
 
 .player-list{list-style:none;}
 .player-list li{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;margin-bottom:7px;font-size:0.88rem;color:rgba(255,255,255,0.8);}
-.pscore{background:linear-gradient(90deg,#e879f9,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:800;font-size:0.85rem;}
+.pscore{background:linear-gradient(90deg,#f97316,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:800;font-size:0.85rem;}
 
 .score-row{text-align:center;margin-bottom:12px;}
-.score-chip{display:inline-block;background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.3);color:#d8b4fe;padding:5px 18px;border-radius:50px;font-size:0.82rem;font-weight:700;letter-spacing:1px;}
+.score-chip{display:inline-block;background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.3);color:#fed7aa;padding:5px 18px;border-radius:50px;font-size:0.82rem;font-weight:700;letter-spacing:1px;}
 
-/* ── OPTIONS — bigger, more tappable on mobile ── */
 .options-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
 .opt-btn{
-  padding:18px 10px; /* tall enough for thumbs */
+  padding:18px 10px;
   background:rgba(255,255,255,0.05);
   border:1.5px solid rgba(255,255,255,0.1);
   border-radius:14px;color:#fff;
@@ -306,18 +299,14 @@ input:focus{outline:none;border-color:rgba(168,85,247,0.6);background:rgba(168,8
   user-select:none;-webkit-user-select:none;
   touch-action:manipulation;
 }
-.opt-btn:active:not(:disabled){
-  transform:scale(0.95);
-  background:rgba(168,85,247,0.2);
-  border-color:rgba(168,85,247,0.6);
-}
+.opt-btn:active:not(:disabled){transform:scale(0.95);background:rgba(249,115,22,0.2);border-color:rgba(249,115,22,0.6);}
 .opt-btn.correct{background:rgba(16,185,129,0.2)!important;border-color:#10b981!important;color:#6ee7b7!important;box-shadow:0 0 20px rgba(16,185,129,0.35)!important;animation:correctPop 0.35s ease;}
 @keyframes correctPop{0%{transform:scale(1);}50%{transform:scale(1.06);}100%{transform:scale(1);}}
 .opt-btn.wrong{background:rgba(239,68,68,0.07)!important;border-color:rgba(239,68,68,0.2)!important;color:rgba(255,255,255,0.2)!important;}
 .opt-btn:disabled{cursor:not-allowed;}
 
 .status-bar{text-align:center;padding:10px 14px;border-radius:10px;font-size:0.82rem;font-weight:700;margin-bottom:10px;letter-spacing:0.5px;}
-.status-bar.inf{background:rgba(99,102,241,0.1);color:#a5b4fc;border:1px solid rgba(99,102,241,0.2);}
+.status-bar.inf{background:rgba(249,115,22,0.1);color:#fdba74;border:1px solid rgba(249,115,22,0.2);}
 .status-bar.ok {background:rgba(16,185,129,0.1);color:#34d399;border:1px solid rgba(16,185,129,0.2);}
 .status-bar.err{background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.2);}
 
@@ -326,13 +315,13 @@ input:focus{outline:none;border-color:rgba(168,85,247,0.6);background:rgba(168,8
 .final-list li:first-child{background:rgba(217,119,6,0.12);border-color:rgba(251,191,36,0.3);box-shadow:0 0 20px rgba(251,191,36,0.1);}
 .medal{font-size:1.6rem;flex-shrink:0;width:38px;text-align:center;}
 .final-name{flex:1;font-weight:700;font-size:0.92rem;color:rgba(255,255,255,0.9);}
-.final-pts{font-weight:900;font-size:1rem;background:linear-gradient(90deg,#e879f9,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.final-pts{font-weight:900;font-size:1rem;background:linear-gradient(90deg,#f97316,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 
 #toast{
   position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-10px) scale(0.95);
   background:rgba(13,13,26,0.96);
-  border:1px solid rgba(168,85,247,0.3);
-  color:#e9d5ff;padding:10px 20px;border-radius:12px;
+  border:1px solid rgba(249,115,22,0.3);
+  color:#fed7aa;padding:10px 20px;border-radius:12px;
   font-size:0.84rem;font-weight:700;z-index:9999;
   opacity:0;pointer-events:none;
   transition:all 0.22s cubic-bezier(0.34,1.56,0.64,1);
@@ -349,10 +338,11 @@ input:focus{outline:none;border-color:rgba(168,85,247,0.6);background:rgba(168,8
 <canvas id="stars-canvas"></canvas>
 <div id="toast"></div>
 <div class="container">
+
   <!-- HOME -->
   <div class="screen active" id="s-home">
     <div class="title-icon">🎉</div>
-    <div class="title-main">vasavi GMR Kitty</div>
+    <div class="title-main">vasavi kitty</div>
     <div class="title-sub">తెలుగు సినిమా ఎమోజీ గేమ్</div>
     <input type="text" id="home-name" placeholder="మీ పేరు రాయండి..." autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false"/>
     <button class="btn-create" onclick="goCreate()">CREATE GAME (HOST)</button>
@@ -362,7 +352,7 @@ input:focus{outline:none;border-color:rgba(168,85,247,0.6);background:rgba(168,8
   <!-- CREATE -->
   <div class="screen" id="s-create">
     <div class="title-icon">🎬</div>
-    <div class="title-main">vasavi GMR Kitty</div>
+    <div class="title-main">vasavi kitty</div>
     <div class="title-sub">కొత్త గేమ్ సెటప్</div>
     <div class="card">
       <input type="number" id="rounds-input" placeholder="రౌండ్లు సంఖ్య (default: 15)" min="5" max="40" inputmode="numeric"/>
@@ -374,7 +364,7 @@ input:focus{outline:none;border-color:rgba(168,85,247,0.6);background:rgba(168,8
   <!-- HOST LOBBY -->
   <div class="screen" id="s-host-lobby">
     <div class="title-icon">🎊</div>
-    <div class="title-main">vasavi GMR Kitty</div>
+    <div class="title-main">vasavi kitty</div>
     <div class="room-code-box">
       <div class="rc-label">✨ ఈ కోడ్ అందరికీ పంపండి</div>
       <div class="rc-code" id="lobby-code">-----</div>
@@ -406,7 +396,7 @@ input:focus{outline:none;border-color:rgba(168,85,247,0.6);background:rgba(168,8
   <!-- JOIN -->
   <div class="screen" id="s-join">
     <div class="title-icon">🎯</div>
-    <div class="title-main">vasavi GMR Kitty</div>
+    <div class="title-main">vasavi kitty</div>
     <div class="title-sub">గేమ్ జాయిన్ అవు</div>
     <div class="card">
       <input type="text" id="join-name" placeholder="మీ పేరు రాయండి..." autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false"/>
@@ -419,7 +409,114 @@ input:focus{outline:none;border-color:rgba(168,85,247,0.6);background:rgba(168,8
   <!-- PLAYER LOBBY -->
   <div class="screen" id="s-player-lobby">
     <div class="title-icon">🎊</div>
-    <div class="title-main">vasavi GMR Kitty</div>
+    <div class="title-main">vasavi kitty</div>
+    <div class="room-code-box">
+      <div class="rc-label">రూమ్ కోడ్</div>
+      <div class="rc-code" id="pl-code">-----</div>
+    </div>
+    <div class="card">
+      <div class="sec-lbl">👥 ప్లేయర్లు</div>
+      <ul class="player-list" id="pl-players">
+        <li><span style="color:rgba(255,255,255,0.25);font-size:0.82rem;">వేచి ఉంది...</span></li>
+      </ul>
+      <div class="status-bar inf" style="margin-top:12px">🕐 హోస్ట్ గేమ్ స్టార్ట్ చేయడం వేచి ఉంది...</div>
+    </div>
+  </div>
+
+  <!-- PLAYER GAME -->
+  <div class="screen" id="s-player-game">
+    <div class="round-hdr" id="p-round">ROUND 1/15</div>
+    <div class="score-row"><span class="score-chip">⭐ స్కోర్: <span id="p-score">0</span></span></div>
+    <div class="emoji-box" id="p-emoji">🎭</div>
+    <div class="hint-pill"><span id="p-hint">తెలుగు సినిమా</span></div>
+    <div class="options-grid" id="p-options"></div>
+    <div id="p-status"></div>
+  </div>
+
+  <!-- GAME OVER -->
+  <div class="screen" id="s-gameover">
+    <div class="title-icon">🏆</div>
+    <div class="title-main">అభినందనలు!</div>
+    <div class="title-sub">గేమ్ ముగిసింది • ఫైనల్ స్కోర్లు</div>
+    <div class="card">
+      <ul class="final-list" id="final-list"></ul>
+    </div>
+    <button class="btn-again" onclick="playAgain()">🔄 మళ్ళీ ఆడు</button>
+  </div>
+
+</div>
+
+  <!-- HOME -->
+  <div class="screen active" id="s-home">
+    <div class="title-icon">🎉</div>
+    <div class="title-main">vasavi kitty</div>
+    <div class="title-sub">తెలుగు సినిమా ఎమోజీ గేమ్</div>
+    <input type="text" id="home-name" placeholder="మీ పేరు రాయండి..." autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false"/>
+    <button class="btn-create" onclick="goCreate()">CREATE GAME (HOST)</button>
+    <button class="btn-join"   onclick="goJoin()">JOIN GAME</button>
+  </div>
+
+  <!-- CREATE -->
+  <div class="screen" id="s-create">
+    <div class="title-icon">🎬</div>
+    <div class="title-main">vasavi kitty</div>
+    <div class="title-sub">కొత్త గేమ్ సెటప్</div>
+    <div class="card">
+      <input type="number" id="rounds-input" placeholder="రౌండ్లు సంఖ్య (default: 15)" min="5" max="40" inputmode="numeric"/>
+      <button class="btn-create" onclick="createRoom()">CREATE ROOM</button>
+      <button class="btn-back"   onclick="show('s-home')">← వెనక్కి</button>
+    </div>
+  </div>
+
+  <!-- HOST LOBBY -->
+  <div class="screen" id="s-host-lobby">
+    <div class="title-icon">🎊</div>
+    <div class="title-main">vasavi kitty</div>
+    <div class="room-code-box">
+      <div class="rc-label">✨ ఈ కోడ్ అందరికీ పంపండి</div>
+      <div class="rc-code" id="lobby-code">-----</div>
+    </div>
+    <div class="card">
+      <div class="sec-lbl">👥 జాయిన్ అయిన ప్లేయర్లు</div>
+      <ul class="player-list" id="lobby-players">
+        <li><span style="color:rgba(255,255,255,0.25);font-size:0.82rem;">ప్లేయర్లు వేచి ఉన్నారు...</span></li>
+      </ul>
+    </div>
+    <button class="btn-start" onclick="startGame()">▶ గేమ్ స్టార్ట్ చేయి</button>
+  </div>
+
+  <!-- HOST GAME -->
+  <div class="screen" id="s-host-game">
+    <div class="round-hdr" id="h-round">ROUND 1/15</div>
+    <div class="emoji-box" id="h-emoji">🎭</div>
+    <div class="hint-pill"><span id="h-hint">తెలుగు సినిమా</span></div>
+    <div class="guesses-card">
+      <div class="g-title">✅ సరైన జవాబులు</div>
+      <div class="guesses-feed" id="h-feed">
+        <div class="wait-msg">జవాబుల కోసం వేచి ఉంది...</div>
+      </div>
+    </div>
+    <button class="btn-next" onclick="nextRound()">తదుపరి రౌండ్ →</button>
+    <button class="btn-end"  onclick="endGame()">గేమ్ ముగించు</button>
+  </div>
+
+  <!-- JOIN -->
+  <div class="screen" id="s-join">
+    <div class="title-icon">🎯</div>
+    <div class="title-main">vasavi kitty</div>
+    <div class="title-sub">గేమ్ జాయిన్ అవు</div>
+    <div class="card">
+      <input type="text" id="join-name" placeholder="మీ పేరు రాయండి..." autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false"/>
+      <input type="text" id="join-code" placeholder="రూమ్ కోడ్ రాయండి..." style="text-transform:uppercase" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"/>
+      <button class="btn-create" onclick="joinRoom()">JOIN ROOM</button>
+      <button class="btn-back"   onclick="show('s-home')">← వెనక్కి</button>
+    </div>
+  </div>
+
+  <!-- PLAYER LOBBY -->
+  <div class="screen" id="s-player-lobby">
+    <div class="title-icon">🎊</div>
+    <div class="title-main">vasavi kitty</div>
     <div class="room-code-box">
       <div class="rc-label">రూమ్ కోడ్</div>
       <div class="rc-code" id="pl-code">-----</div>
@@ -457,217 +554,73 @@ input:focus{outline:none;border-color:rgba(168,85,247,0.6);background:rgba(168,8
 </div>
 
 <script>
-/* ── STAR FIELD — reduced count on mobile for perf ── */
 (function(){
   const canvas = document.getElementById('stars-canvas');
   const ctx = canvas.getContext('2d');
   let stars = [], raf;
   const isMobile = window.innerWidth < 600;
-
-  function resize(){
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
+  function resize(){ canvas.width=window.innerWidth; canvas.height=window.innerHeight; }
   function initStars(){
-    stars = [];
-    /* fewer stars on mobile = smoother animation */
-    const density = isMobile ? 12000 : 5500;
-    const count = Math.floor((canvas.width * canvas.height) / density);
-    for(let i=0;i<count;i++){
-      stars.push({
-        x:Math.random()*canvas.width,
-        y:Math.random()*canvas.height,
-        r:Math.random()*1.4+0.3,
-        a:Math.random()*Math.PI*2,
-        speed:Math.random()*0.007+0.002
-      });
-    }
+    stars=[];
+    const count=Math.floor((canvas.width*canvas.height)/(isMobile?12000:5500));
+    for(let i=0;i<count;i++) stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*1.4+0.3,a:Math.random()*Math.PI*2,speed:Math.random()*0.007+0.002});
   }
   function draw(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
-    stars.forEach(s=>{
-      s.a+=s.speed;
-      const alpha=(Math.sin(s.a)*0.5+0.5)*0.65+0.1;
-      ctx.beginPath();
-      ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
-      ctx.fillStyle=`rgba(255,255,255,${alpha})`;
-      ctx.fill();
-    });
+    stars.forEach(s=>{s.a+=s.speed;const alpha=(Math.sin(s.a)*0.5+0.5)*0.65+0.1;ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle=`rgba(255,255,255,${alpha})`;ctx.fill();});
     raf=requestAnimationFrame(draw);
   }
-  resize(); initStars(); draw();
-  /* pause when tab hidden — saves battery on mobile */
-  document.addEventListener('visibilitychange',()=>{
-    if(document.hidden){ cancelAnimationFrame(raf); }
-    else { draw(); }
-  });
+  resize();initStars();draw();
+  document.addEventListener('visibilitychange',()=>{ if(document.hidden){cancelAnimationFrame(raf);}else{draw();} });
   window.addEventListener('resize',()=>{resize();initStars();},{passive:true});
 })();
 
-/* ── APP ── */
-const socket = io();
-let myName='',myRoom='',isHost=false,myScore=0;
-let hasAnswered=false,lastAnswer='';
-
+const socket=io();
+let myName='',myRoom='',isHost=false,myScore=0,hasAnswered=false,lastAnswer='';
 const SS={
   save:(n,r,h)=>{try{sessionStorage.setItem('vgk_n',n);sessionStorage.setItem('vgk_r',r);sessionStorage.setItem('vgk_h',h?'1':'0');}catch(e){}},
   clear:()=>{try{['vgk_n','vgk_r','vgk_h'].forEach(k=>sessionStorage.removeItem(k));}catch(e){}},
   get:()=>{try{return{n:sessionStorage.getItem('vgk_n'),r:sessionStorage.getItem('vgk_r'),h:sessionStorage.getItem('vgk_h')};}catch(e){return{};}}
 };
-
-function show(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  /* scroll to top on screen change — important on mobile */
-  const container = document.querySelector('.container');
-  if(container) container.scrollTop=0;
-}
-
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');const c=document.querySelector('.container');if(c)c.scrollTop=0;}
 let _tt;
-function toast(msg,ms=3200){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.classList.add('show');
-  clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),ms);
-}
-
-/* ── instant-tap helper: fires on touchstart AND click ── */
-function fastTap(el,fn){
-  let fired=false;
-  el.addEventListener('touchstart',e=>{
-    fired=true;
-    e.preventDefault(); /* prevents ghost click 300ms later */
-    fn();
-  },{passive:false});
-  el.addEventListener('click',()=>{
-    if(!fired) fn();
-    fired=false;
-  });
-}
-
-function goCreate(){
-  const n=document.getElementById('home-name').value.trim();
-  if(!n){toast('⚠️ మీ పేరు రాయండి!');return;}
-  myName=n;show('s-create');
-}
-function goJoin(){
-  const n=document.getElementById('home-name').value.trim();
-  if(!n){toast('⚠️ మీ పేరు రాయండి!');return;}
-  myName=n;document.getElementById('join-name').value=n;show('s-join');
-}
-function createRoom(){
-  const rounds=parseInt(document.getElementById('rounds-input').value)||15;
-  isHost=true;socket.emit('create-room',{name:myName,rounds});
-}
-function joinRoom(){
-  const n=document.getElementById('join-name').value.trim();
-  const c=document.getElementById('join-code').value.trim().toUpperCase();
-  if(!n||!c){toast('⚠️ పేరు మరియు కోడ్ రాయండి!');return;}
-  myName=n;myRoom=c;socket.emit('join-room',{name:n,roomCode:c});
-}
+function toast(msg,ms=3200){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),ms);}
+function fastTap(el,fn){let fired=false;el.addEventListener('touchstart',e=>{fired=true;e.preventDefault();fn();},{passive:false});el.addEventListener('click',()=>{if(!fired)fn();fired=false;});}
+function goCreate(){const n=document.getElementById('home-name').value.trim();if(!n){toast('⚠️ మీ పేరు రాయండి!');return;}myName=n;show('s-create');}
+function goJoin(){const n=document.getElementById('home-name').value.trim();if(!n){toast('⚠️ మీ పేరు రాయండి!');return;}myName=n;document.getElementById('join-name').value=n;show('s-join');}
+function createRoom(){const rounds=parseInt(document.getElementById('rounds-input').value)||15;isHost=true;socket.emit('create-room',{name:myName,rounds});}
+function joinRoom(){const n=document.getElementById('join-name').value.trim();const c=document.getElementById('join-code').value.trim().toUpperCase();if(!n||!c){toast('⚠️ పేరు మరియు కోడ్ రాయండి!');return;}myName=n;myRoom=c;socket.emit('join-room',{name:n,roomCode:c});}
 function startGame(){socket.emit('start-game');}
-function nextRound(){
-  socket.emit('next-round');
-  document.getElementById('h-feed').innerHTML='<div class="wait-msg">జవాబుల కోసం వేచి ఉంది...</div>';
-}
+function nextRound(){socket.emit('next-round');document.getElementById('h-feed').innerHTML='<div class="wait-msg">జవాబుల కోసం వేచి ఉంది...</div>';}
 function endGame(){socket.emit('end-game');}
 function playAgain(){SS.clear();location.reload();}
-
 function renderOptions(opts){
   hasAnswered=false;
-  const grid=document.getElementById('p-options');
-  grid.innerHTML='';
+  const grid=document.getElementById('p-options');grid.innerHTML='';
   opts.forEach(opt=>{
-    const btn=document.createElement('button');
-    btn.className='opt-btn';
-    btn.textContent=opt;
-    /* use fastTap for instant response on mobile */
-    fastTap(btn,()=>{
-      if(hasAnswered||btn.disabled)return;
-      hasAnswered=true;lastAnswer=opt;
-      document.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);
-      socket.emit('submit-answer',{answer:opt});
-    });
+    const btn=document.createElement('button');btn.className='opt-btn';btn.textContent=opt;
+    fastTap(btn,()=>{if(hasAnswered||btn.disabled)return;hasAnswered=true;lastAnswer=opt;document.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);socket.emit('submit-answer',{answer:opt});});
     grid.appendChild(btn);
   });
   document.getElementById('p-status').innerHTML='';
 }
-function highlightAnswer(ans,correct){
-  document.querySelectorAll('.opt-btn').forEach(b=>{
-    b.disabled=true;
-    if(b.textContent===ans)b.classList.add(correct?'correct':'wrong');
-  });
-}
-function renderPlayers(players,ulId){
-  const ul=document.getElementById(ulId);
-  if(!players||!players.length){
-    ul.innerHTML='<li><span style="color:rgba(255,255,255,0.25);font-size:0.82rem;">వేచి ఉంది...</span></li>';
-    return;
-  }
-  ul.innerHTML=players.map(p=>`<li><span>${p.name}</span><span class="pscore">${p.score} pts</span></li>`).join('');
-}
-function renderFinal(scores){
-  const medals=['🥇','🥈','🥉'];
-  document.getElementById('final-list').innerHTML=scores.map((p,i)=>
-    `<li><span class="medal">${medals[i]||'🎖️'}</span><span class="final-name">${p.name}</span><span class="final-pts">${p.score} pts</span></li>`
-  ).join('');
-  show('s-gameover');
-}
+function highlightAnswer(ans,correct){document.querySelectorAll('.opt-btn').forEach(b=>{b.disabled=true;if(b.textContent===ans)b.classList.add(correct?'correct':'wrong');});}
+function renderPlayers(players,ulId){const ul=document.getElementById(ulId);if(!players||!players.length){ul.innerHTML='<li><span style="color:rgba(255,255,255,0.25);font-size:0.82rem;">వేచి ఉంది...</span></li>';return;}ul.innerHTML=players.map(p=>`<li><span>${p.name}</span><span class="pscore">${p.score} pts</span></li>`).join('');}
+function renderFinal(scores){const medals=['🥇','🥈','🥉'];document.getElementById('final-list').innerHTML=scores.map((p,i)=>`<li><span class="medal">${medals[i]||'🎖️'}</span><span class="final-name">${p.name}</span><span class="final-pts">${p.score} pts</span></li>`).join('');show('s-gameover');}
 
-/* ── SOCKET ── */
-socket.on('room-created',({roomCode})=>{
-  myRoom=roomCode;document.getElementById('lobby-code').textContent=roomCode;
-  SS.save(myName,roomCode,true);show('s-host-lobby');
-});
+socket.on('room-created',({roomCode})=>{myRoom=roomCode;document.getElementById('lobby-code').textContent=roomCode;SS.save(myName,roomCode,true);show('s-host-lobby');});
 socket.on('player-joined',({name,players})=>{renderPlayers(players,'lobby-players');toast(`👋 ${name} జాయిన్ అయ్యారు!`);});
-socket.on('joined',({name,roomCode,score,isRejoin})=>{
-  myName=name;myRoom=roomCode;myScore=score||0;
-  document.getElementById('pl-code').textContent=roomCode;
-  document.getElementById('p-score').textContent=myScore;
-  SS.save(name,roomCode,false);
-  if(isRejoin)toast(`✅ రీజాయిన్! స్కోర్: ${myScore}`);
-  show('s-player-lobby');
-});
-socket.on('host-rejoined',({roomCode,players,started})=>{
-  myRoom=roomCode;document.getElementById('lobby-code').textContent=roomCode;
-  renderPlayers(players,'lobby-players');toast('✅ హోస్ట్ రీజాయిన్!');
-  show(started?'s-host-game':'s-host-lobby');
-});
-socket.on('round-start',({round,total,emoji,hint,options})=>{
-  if(isHost){
-    document.getElementById('h-round').textContent=`ROUND ${round}/${total}`;
-    document.getElementById('h-emoji').textContent=emoji;
-    document.getElementById('h-hint').textContent=hint;
-    document.getElementById('h-feed').innerHTML='<div class="wait-msg">జవాబుల కోసం వేచి ఉంది...</div>';
-    show('s-host-game');
-  } else {
-    document.getElementById('p-round').textContent=`ROUND ${round}/${total}`;
-    document.getElementById('p-emoji').textContent=emoji;
-    document.getElementById('p-hint').textContent=hint;
-    renderOptions(options);show('s-player-game');
-  }
-});
-socket.on('correct-guess',({name,answer})=>{
-  if(!isHost)return;
-  const feed=document.getElementById('h-feed');
-  const empty=feed.querySelector('.wait-msg');if(empty)empty.remove();
-  const div=document.createElement('div');div.className='guess-item';
-  div.textContent=`✅ ${name} → ${answer}`;feed.insertBefore(div,feed.firstChild);
-});
-socket.on('answer-result',({correct})=>{
-  highlightAnswer(lastAnswer,correct);
-  if(correct){myScore+=10;document.getElementById('p-score').textContent=myScore;toast('🎉 సరైన జవాబు! +10 పాయింట్లు');}
-  else toast('❌ తప్పు జవాబు!');
-});
+socket.on('joined',({name,roomCode,score,isRejoin})=>{myName=name;myRoom=roomCode;myScore=score||0;document.getElementById('pl-code').textContent=roomCode;document.getElementById('p-score').textContent=myScore;SS.save(name,roomCode,false);if(isRejoin)toast(`✅ రీజాయిన్! స్కోర్: ${myScore}`);show('s-player-lobby');});
+socket.on('host-rejoined',({roomCode,players,started})=>{myRoom=roomCode;document.getElementById('lobby-code').textContent=roomCode;renderPlayers(players,'lobby-players');toast('✅ హోస్ట్ రీజాయిన్!');show(started?'s-host-game':'s-host-lobby');});
+socket.on('round-start',({round,total,emoji,hint,options})=>{if(isHost){document.getElementById('h-round').textContent=`ROUND ${round}/${total}`;document.getElementById('h-emoji').textContent=emoji;document.getElementById('h-hint').textContent=hint;document.getElementById('h-feed').innerHTML='<div class="wait-msg">జవాబుల కోసం వేచి ఉంది...</div>';show('s-host-game');}else{document.getElementById('p-round').textContent=`ROUND ${round}/${total}`;document.getElementById('p-emoji').textContent=emoji;document.getElementById('p-hint').textContent=hint;renderOptions(options);show('s-player-game');}});
+socket.on('correct-guess',({name,answer})=>{if(!isHost)return;const feed=document.getElementById('h-feed');const empty=feed.querySelector('.wait-msg');if(empty)empty.remove();const div=document.createElement('div');div.className='guess-item';div.textContent=`✅ ${name} → ${answer}`;feed.insertBefore(div,feed.firstChild);});
+socket.on('answer-result',({correct})=>{highlightAnswer(lastAnswer,correct);if(correct){myScore+=10;document.getElementById('p-score').textContent=myScore;toast('🎉 సరైన జవాబు! +10 పాయింట్లు');}else toast('❌ తప్పు జవాబు!');});
 socket.on('player-left',({players})=>{if(isHost)renderPlayers(players,'lobby-players');});
 socket.on('host-disconnected',()=>toast('⚠️ హోస్ట్ డిస్కనెక్ట్ — 5 నిమిషాలు వేచి ఉంది...',7000));
 socket.on('room-closed',()=>{toast('❌ రూమ్ క్లోజ్ అయింది.',5000);SS.clear();setTimeout(()=>location.reload(),3000);});
 socket.on('game-over',({finalScores})=>renderFinal(finalScores));
 socket.on('error',({message})=>toast(`❌ ${message}`));
-
-socket.on('connect',()=>{
-  const {n,r,h}=SS.get();
-  if(n&&r){myName=n;myRoom=r;isHost=h==='1';socket.emit('join-room',{name:n,roomCode:r});}
-});
+socket.on('connect',()=>{const {n,r,h}=SS.get();if(n&&r){myName=n;myRoom=r;isHost=h==='1';socket.emit('join-room',{name:n,roomCode:r});}});
 </script>
 </body>
 </html>

@@ -1,6 +1,7 @@
 /**
  * Emoji Guess — Kitty Party Edition
  * Node.js + Express + Socket.IO Server
+ * Features: multiple choice, rejoin support
  */
 
 const express = require('express');
@@ -18,7 +19,7 @@ const io = new Server(server, {
 app.use(express.static(path.join(__dirname, 'public')));
 
 const rooms = {};
-const playerRooms = {};
+const playerRooms = {};  // socketId -> roomCode
 
 function generateRoomCode() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -60,9 +61,15 @@ function log(msg) {
   console.log(`[${new Date().toISOString()}] ${msg}`);
 }
 
+/** Shuffle the 4 options so correct answer isn't always first */
+function shuffledOptions(puzzle) {
+  return shuffle([...puzzle.options]);
+}
+
 io.on('connection', (socket) => {
   log(`Connected: ${socket.id}`);
 
+  // ── Create Room ──────────────────────────────────────────────────────────
   socket.on('create-room', (data) => {
     const roomCode = uniqueRoomCode();
     const hostName = data?.playerName || data?.name || 'Host';
@@ -70,7 +77,8 @@ io.on('connection', (socket) => {
 
     rooms[roomCode] = {
       host: socket.id,
-      players: [{ id: socket.id, name: hostName, score: 0 }],
+      hostName,
+      players: [{ id: socket.id, name: hostName, score: 0, online: true }],
       currentRound: 0,
       totalRounds,
       puzzles: [],
@@ -86,6 +94,7 @@ io.on('connection', (socket) => {
     socket.emit('room-created', { roomCode, totalRounds });
   });
 
+  // ── Join Room (or Rejoin) ─────────────────────────────────────────────────
   socket.on('join-room', (data, callback) => {
     const cb = typeof callback === 'function' ? callback : () => {};
     const roomCode = data?.roomCode?.toUpperCase();
@@ -95,22 +104,69 @@ io.on('connection', (socket) => {
 
     const room = rooms[roomCode];
     if (!room) return cb({ error: 'Room not found. Check the code and try again.' });
-    if (room.roundActive) return cb({ error: 'Game already in progress. Wait for the next game.' });
-    if (room.players.find(p => p.name === name)) return cb({ error: 'That name is taken — pick another!' });
 
-    room.players.push({ id: socket.id, name, score: 0 });
+    // Check if this is a REJOIN (same name already in room)
+    const existing = room.players.find(p => p.name === name);
+    if (existing) {
+      // Rejoin: update socket id, mark online
+      existing.id = socket.id;
+      existing.online = true;
+      playerRooms[socket.id] = roomCode;
+      socket.join(roomCode);
+
+      // If this rejoining player is the host, update host socket id
+      if (existing.name === room.hostName) {
+        room.host = socket.id;
+      }
+
+      log(`${name} REJOINED room ${roomCode} (score: ${existing.score})`);
+
+      cb({
+        success: true,
+        rejoin: true,
+        totalRounds: room.totalRounds,
+        players: playerNames(room),
+        currentScore: existing.score
+      });
+
+      // If game is active, send the current round state immediately
+      if (room.roundActive && room.currentPuzzle) {
+        socket.emit('round-start', {
+          roundNumber: room.currentRound + 1,
+          totalRounds: room.totalRounds,
+          emoji: room.currentPuzzle.emojis,
+          category: 'Telugu Movie',
+          hint: room.currentPuzzle.hint,
+          options: shuffledOptions(room.currentPuzzle),
+          alreadyGuessed: room.guessedThisRound.has(socket.id)
+        });
+      }
+
+      io.to(roomCode).emit('player-joined', {
+        players: playerNames(room),
+        onlinePlayers: room.players.filter(p => p.online).length
+      });
+
+      return;
+    }
+
+    // New player joining
+    if (room.roundActive) return cb({ error: 'Game already in progress. Wait for the next game.' });
+
+    room.players.push({ id: socket.id, name, score: 0, online: true });
     playerRooms[socket.id] = roomCode;
     socket.join(roomCode);
     log(`${name} joined room ${roomCode}`);
 
-    cb({ success: true, totalRounds: room.totalRounds, players: playerNames(room) });
+    cb({ success: true, totalRounds: room.totalRounds, players: playerNames(room), currentScore: 0 });
 
     io.to(roomCode).emit('player-joined', {
       players: playerNames(room),
-      onlinePlayers: room.players.length
+      onlinePlayers: room.players.filter(p => p.online).length
     });
   });
 
+  // ── Start Game ───────────────────────────────────────────────────────────
   socket.on('start-game', (data) => {
     const roomCode = data?.roomCode || playerRooms[socket.id];
     const room = rooms[roomCode];
@@ -132,6 +188,7 @@ io.on('connection', (socket) => {
     emitRound(roomCode, room);
   });
 
+  // ── Submit Guess (multiple choice) ───────────────────────────────────────
   socket.on('submit-guess', (data) => {
     const roomCode = data?.roomCode || playerRooms[socket.id];
     const room = rooms[roomCode];
@@ -141,11 +198,13 @@ io.on('connection', (socket) => {
     const guess = (data.guess || '').trim().toLowerCase();
     if (!guess) return;
 
-    const isCorrect = room.currentPuzzle.answers.some(a => a.toLowerCase() === guess);
+    const isCorrect = room.currentPuzzle.answer.toLowerCase() === guess;
+
+    // Mark as guessed regardless (player used their one attempt)
+    room.guessedThisRound.add(socket.id);
 
     if (isCorrect) {
       room.roundScorers += 1;
-      room.guessedThisRound.add(socket.id);
 
       const player = room.players.find(p => p.id === socket.id);
       if (!player) return;
@@ -172,6 +231,7 @@ io.on('connection', (socket) => {
     }
   });
 
+  // ── Next Round ───────────────────────────────────────────────────────────
   socket.on('next-round', (data) => {
     const roomCode = data?.roomCode || playerRooms[socket.id];
     const room = rooms[roomCode];
@@ -179,7 +239,7 @@ io.on('connection', (socket) => {
 
     io.to(roomCode).emit('round-end', {
       roundNumber: room.currentRound + 1,
-      answer: room.currentPuzzle.answers[0],
+      answer: room.currentPuzzle.answer,
       leaderboard: leaderboard(room)
     });
 
@@ -199,6 +259,7 @@ io.on('connection', (socket) => {
     }
   });
 
+  // ── End Game ─────────────────────────────────────────────────────────────
   socket.on('end-game', (data) => {
     const roomCode = data?.roomCode || playerRooms[socket.id];
     const room = rooms[roomCode];
@@ -209,27 +270,47 @@ io.on('connection', (socket) => {
     io.to(roomCode).emit('game-over', { leaderboard: leaderboard(room) });
   });
 
+  // ── Disconnect ───────────────────────────────────────────────────────────
   socket.on('disconnect', () => {
     const roomCode = playerRooms[socket.id];
     if (!roomCode || !rooms[roomCode]) { delete playerRooms[socket.id]; return; }
 
     const room = rooms[roomCode];
-    const idx = room.players.findIndex(p => p.id === socket.id);
-    if (idx === -1) { delete playerRooms[socket.id]; return; }
+    const player = room.players.find(p => p.id === socket.id);
+    if (!player) { delete playerRooms[socket.id]; return; }
 
-    const player = room.players[idx];
-    room.players.splice(idx, 1);
-    log(`${player.name} disconnected from ${roomCode}`);
+    // Mark offline but keep in room so they can rejoin
+    player.online = false;
+    log(`${player.name} disconnected from ${roomCode} (kept for rejoin)`);
 
+    // If host disconnects, notify but keep room alive for 5 minutes
     if (socket.id === room.host) {
-      io.to(roomCode).emit('host-disconnected', { message: 'Host left — game ended.' });
-      delete rooms[roomCode];
-    } else if (room.players.length === 0) {
-      delete rooms[roomCode];
+      io.to(roomCode).emit('host-disconnected', {
+        message: 'Host disconnected. They can rejoin with the same room code.'
+      });
+      // Give host 5 minutes to rejoin before destroying room
+      room.hostTimeout = setTimeout(() => {
+        if (rooms[roomCode]) {
+          io.to(roomCode).emit('host-disconnected', { message: 'Host did not return — game ended.' });
+          delete rooms[roomCode];
+        }
+      }, 5 * 60 * 1000);
+    }
+
+    // Clean up all-offline rooms immediately only if no one is online
+    const anyOnline = room.players.some(p => p.online);
+    if (!anyOnline) {
+      // Keep room for rejoin window
+      setTimeout(() => {
+        if (rooms[roomCode] && !rooms[roomCode].players.some(p => p.online)) {
+          delete rooms[roomCode];
+          log(`Room ${roomCode} cleaned up — all players gone`);
+        }
+      }, 5 * 60 * 1000);
     } else {
       io.to(roomCode).emit('player-joined', {
         players: playerNames(room),
-        onlinePlayers: room.players.length
+        onlinePlayers: room.players.filter(p => p.online).length
       });
     }
 
@@ -239,12 +320,14 @@ io.on('connection', (socket) => {
 
 function emitRound(roomCode, room) {
   const p = room.currentPuzzle;
+  const opts = shuffledOptions(p);
   io.to(roomCode).emit('round-start', {
     roundNumber: room.currentRound + 1,
     totalRounds: room.totalRounds,
     emoji: p.emojis,
-    category: p.category,
-    hint: p.hint
+    category: 'Telugu Movie',
+    hint: p.hint,
+    options: opts
   });
 }
 

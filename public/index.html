@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#6C2DC7">
+    <title>Emoji Guess 🎉</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; overflow: hidden; position: fixed; background: #0F0A1A; }
+        #bg-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; background: linear-gradient(135deg, #1A0533 0%, #0F0A1A 40%, #0A1628 100%); }
+        .orb { position: fixed; border-radius: 50%; filter: blur(60px); opacity: 0.4; animation: orbFloat 8s ease-in-out infinite; z-index: 0; pointer-events: none; }
+        .orb-1 { width: 300px; height: 300px; background: #FF6B9D; top: -50px; left: -80px; animation-delay: 0s; }
+        .orb-2 { width: 250px; height: 250px; background: #C084FC; bottom: -40px; right: -60px; animation-delay: -3s; }
+        .orb-3 { width: 200px; height: 200px; background: #FCD34D; top: 40%; left: 50%; animation-delay: -5s; }
+        .orb-4 { width: 180px; height: 180px; background: #34D399; top: 20%; right: -40px; animation-delay: -2s; }
+        @keyframes orbFloat { 0%, 100% { transform: translate(0, 0) scale(1); } 33% { transform: translate(30px, -20px) scale(1.1); } 66% { transform: translate(-20px, 20px) scale(0.9); } }
+        #app { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative; z-index: 1; padding: max(0px, env(safe-area-inset-bottom)); }
+        .screen { display: none; position: absolute; width: 100%; height: 100%; max-width: 480px; overflow-y: auto; padding: max(24px, env(safe-area-inset-top)) 20px max(24px, env(safe-area-inset-bottom)) 20px; opacity: 0; transform: translateY(20px); animation: screenIn 0.4s ease forwards; }
+        .screen.active { display: flex; flex-direction: column; opacity: 1; transform: translateY(0); }
+        @keyframes screenIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .glass { background: rgba(255,255,255,0.07); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; }
+        .glass-strong { background: rgba(255,255,255,0.1); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; }
+        h1 { font-size: 2.2rem; font-weight: 800; background: linear-gradient(135deg, #FF6B9D, #C084FC, #FCD34D); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 8px; letter-spacing: -0.5px; }
+        h2 { font-size: 1.4rem; font-weight: 700; color: #F0E6FF; margin-bottom: 16px; }
+        h3 { font-size: 1rem; font-weight: 600; color: #C084FC; margin-bottom: 12px; }
+        .subtitle { font-size: 1rem; font-weight: 500; background: linear-gradient(90deg, #FCD34D, #F97316); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 32px; letter-spacing: 2px; text-transform: uppercase; }
+        p { font-size: 1rem; line-height: 1.5; color: #B8A9D4; margin-bottom: 12px; }
+        .emoji-display { font-size: 4rem; text-align: center; margin: 20px 0; padding: 24px; background: rgba(255,255,255,0.05); border-radius: 24px; border: 1px solid rgba(255,255,255,0.1); animation: emojiPulse 0.6s ease; }
+        @keyframes emojiPulse { 0% { transform: scale(0.7); opacity: 0; } 50% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }
+        .category-badge { display: inline-block; background: linear-gradient(135deg, #F97316, #FCD34D); color: #1A0533; padding: 8px 20px; border-radius: 30px; font-size: 0.85rem; font-weight: 700; text-align: center; margin: 0 auto 16px; text-transform: uppercase; letter-spacing: 1px; }
+        input[type="text"], select { width: 100%; padding: 16px 18px; font-size: 1rem; font-family: inherit; background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.12); border-radius: 14px; color: #F0E6FF; margin-bottom: 14px; transition: all 0.3s ease; }
+        input[type="text"]:focus, select:focus { outline: none; border-color: #C084FC; background: rgba(255,255,255,0.12); box-shadow: 0 0 20px rgba(192,132,252,0.2); }
+        input::placeholder { color: rgba(192,132,252,0.4); }
+        select option { background: #1A0533; color: #F0E6FF; }
+        input[type="text"].uppercase { text-transform: uppercase; letter-spacing: 4px; font-weight: 700; font-size: 1.3rem; text-align: center; }
+        label { font-weight: 600; color: #C084FC; display: block; margin-bottom: 8px; font-size: 0.9rem; }
+        button { padding: 16px 24px; font-size: 1rem; font-weight: 700; border: none; border-radius: 14px; cursor: pointer; transition: all 0.3s ease; min-height: 52px; display: flex; align-items: center; justify-content: center; text-transform: uppercase; letter-spacing: 1px; font-family: inherit; position: relative; overflow: hidden; }
+        .btn-primary { width: 100%; margin-bottom: 12px; background: linear-gradient(135deg, #FF6B9D, #C084FC); color: white; box-shadow: 0 4px 20px rgba(192,132,252,0.4); }
+        .btn-primary:active:not(:disabled) { transform: scale(0.97); box-shadow: 0 2px 10px rgba(192,132,252,0.3); }
+        .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-secondary { width: 100%; margin-bottom: 12px; background: rgba(255,255,255,0.08); color: #C084FC; border: 1px solid rgba(192,132,252,0.3); }
+        .btn-secondary:active:not(:disabled) { background: rgba(255,255,255,0.14); transform: scale(0.97); }
+        .btn-gold { width: 100%; margin-bottom: 12px; background: linear-gradient(135deg, #FCD34D, #F97316); color: #1A0533; box-shadow: 0 4px 20px rgba(252,211,77,0.3); }
+        .btn-green { background: linear-gradient(135deg, #34D399, #10B981); color: white; box-shadow: 0 4px 20px rgba(52,211,153,0.3); }
+        .btn-red { background: rgba(239,68,68,0.2); color: #F87171; border: 1px solid rgba(239,68,68,0.3); }
+        .room-code-display { background: linear-gradient(135deg, #6C2DC7, #C084FC, #FF6B9D); padding: 28px; border-radius: 20px; text-align: center; margin: 20px 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; box-shadow: 0 8px 32px rgba(108,45,199,0.4); }
+        .room-code-display .code { flex: 1; font-size: 2rem; letter-spacing: 8px; font-weight: 800; color: white; font-family: 'Courier New', monospace; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        .copy-btn { background: rgba(255,255,255,0.25); color: white; border: 2px solid rgba(255,255,255,0.4); padding: 10px 14px; font-size: 1rem; min-width: 50px; border-radius: 12px; min-height: auto; }
+        .player-list { overflow-y: auto; margin: 12px 0; max-height: 200px; }
+        .player-item { display: flex; align-items: center; padding: 14px 16px; border-radius: 12px; margin-bottom: 8px; background: rgba(255,255,255,0.06); border-left: 4px solid #C084FC; }
+        .player-item:nth-child(2n) { border-left-color: #FF6B9D; }
+        .player-item:nth-child(3n) { border-left-color: #FCD34D; }
+        .player-item:nth-child(4n) { border-left-color: #34D399; }
+        .player-name { flex: 1; font-weight: 600; color: #F0E6FF; }
+        .player-status { font-size: 0.7rem; color: #C084FC; text-transform: uppercase; letter-spacing: 1.5px; background: rgba(192,132,252,0.15); padding: 3px 8px; border-radius: 6px; }
+        .guess-feed { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 16px; max-height: 250px; overflow-y: auto; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.08); }
+        .guess-feed-label { font-size: 0.8rem; font-weight: 700; color: #C084FC; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
+        .guess-feed-empty { text-align: center; color: rgba(192,132,252,0.4); padding: 28px 0; font-size: 0.9rem; }
+        .guess-item { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 12px; margin-bottom: 8px; animation: guessSlideIn 0.4s ease; }
+        .guess-item.correct { background: linear-gradient(135deg, rgba(52,211,153,0.15), rgba(16,185,129,0.08)); border: 1px solid rgba(52,211,153,0.3); }
+        @keyframes guessSlideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+        .guess-position { font-size: 1.5rem; min-width: 32px; text-align: center; }
+        .guess-name { flex: 1; font-weight: 600; color: #34D399; }
+        .feedback { padding: 14px 18px; border-radius: 12px; text-align: center; font-weight: 700; margin: 12px 0; animation: feedbackPop 0.5s ease; }
+        .feedback.success { background: linear-gradient(135deg, rgba(52,211,153,0.2), rgba(16,185,129,0.1)); color: #34D399; border: 1px solid rgba(52,211,153,0.3); }
+        .feedback.error { background: rgba(239,68,68,0.15); color: #F87171; border: 1px solid rgba(239,68,68,0.3); }
+        @keyframes feedbackPop { 0% { transform: scale(0.9); opacity: 0; } 50% { transform: scale(1.05); } 100% { transform: scale(1); opacity: 1; } }
+        .score-display { background: linear-gradient(135deg, rgba(252,211,77,0.2), rgba(249,115,22,0.15)); border: 1px solid rgba(252,211,77,0.3); color: #FCD34D; padding: 14px 20px; border-radius: 14px; text-align: center; font-weight: 700; font-size: 1.1rem; margin: 16px 0; }
+        .scoreboard { border-radius: 16px; padding: 8px; margin: 16px 0; }
+        .scoreboard-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; margin-bottom: 6px; border-radius: 12px; background: rgba(255,255,255,0.06); }
+        .scoreboard-item:first-child { background: linear-gradient(135deg, rgba(252,211,77,0.15), rgba(249,115,22,0.1)); border: 1px solid rgba(252,211,77,0.3); }
+        .scoreboard-item:nth-child(2) { background: linear-gradient(135deg, rgba(192,192,192,0.1), rgba(160,160,160,0.06)); border: 1px solid rgba(192,192,192,0.2); }
+        .scoreboard-item:nth-child(3) { background: linear-gradient(135deg, rgba(205,127,50,0.12), rgba(180,100,30,0.06)); border: 1px solid rgba(205,127,50,0.25); }
+        .scoreboard-rank { font-size: 1.5rem; min-width: 40px; text-align: center; }
+        .scoreboard-name { flex: 1; font-weight: 600; color: #F0E6FF; margin-left: 12px; }
+        .scoreboard-score { font-weight: 800; font-size: 1.1rem; background: linear-gradient(135deg, #FCD34D, #F97316); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .leaderboard-winner { text-align: center; margin: 24px 0; animation: wiggle 0.8s ease-in-out; }
+        @keyframes wiggle { 0%, 100% { transform: rotate(0deg); } 20% { transform: rotate(-6deg); } 40% { transform: rotate(6deg); } 60% { transform: rotate(-4deg); } 80% { transform: rotate(4deg); } }
+        .leaderboard-winner-emoji { font-size: 5rem; margin-bottom: 16px; }
+        .leaderboard-winner-name { font-size: 1.6rem; font-weight: 800; background: linear-gradient(135deg, #FF6B9D, #C084FC); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 8px; }
+        .leaderboard-winner-score { font-size: 1.3rem; font-weight: 700; color: #FCD34D; }
+        #home { justify-content: center; align-items: center; text-align: center; }
+        .home-content { width: 100%; }
+        .home-title-icon { font-size: 4rem; margin-bottom: 12px; animation: bounce 2s ease-in-out infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        #create-screen { justify-content: flex-start; gap: 0; }
+        .create-content { width: 100%; }
+        #join-screen { justify-content: center; align-items: center; text-align: center; }
+        .join-content { width: 100%; max-width: 350px; }
+        #game-host { justify-content: flex-start; padding-bottom: 20px; }
+        .game-host-content { width: 100%; flex: 1; overflow-y: auto; }
+        .round-counter { text-align: center; font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 2px; background: linear-gradient(90deg, #FF6B9D, #C084FC, #FCD34D); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .game-actions { display: flex; gap: 12px; margin-top: auto; padding-top: 12px; }
+        .game-actions button { flex: 1; }
+        #game-player { justify-content: flex-start; padding-bottom: 20px; }
+        .game-player-content { width: 100%; flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+        .game-input-section { margin-top: auto; }
+        .guess-input-group { display: flex; gap: 8px; margin-bottom: 12px; }
+        .guess-input-group input { flex: 1; margin-bottom: 0; }
+        .guess-input-group button { width: auto; min-width: 70px; padding: 14px 18px; margin-bottom: 0; background: linear-gradient(135deg, #34D399, #10B981); color: white; box-shadow: 0 4px 16px rgba(52,211,153,0.3); }
+        #leaderboard { justify-content: flex-start; padding-bottom: 20px; }
+        .leaderboard-content { width: 100%; flex: 1; overflow-y: auto; }
+        .online-counter { position: fixed; top: max(12px, env(safe-area-inset-top)); right: 16px; background: rgba(255,255,255,0.1); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.15); color: #F0E6FF; padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; z-index: 100; }
+        .online-counter-dot { display: inline-block; width: 7px; height: 7px; background: #34D399; border-radius: 50%; margin-right: 5px; animation: pulse 2s ease infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .confetti { position: fixed; pointer-events: none; animation: confettiFall 3s ease-in forwards; z-index: 200; }
+        @keyframes confettiFall { 0% { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); } 100% { opacity: 0; transform: translateY(600px) rotate(1080deg) scale(0.3); } }
+        .error-message { background: rgba(239,68,68,0.15); color: #F87171; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(239,68,68,0.3); margin-bottom: 16px; }
+        .spinner { display: inline-block; width: 24px; height: 24px; border: 3px solid rgba(192,132,252,0.2); border-top-color: #C084FC; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .star { position: fixed; pointer-events: none; z-index: 0; width: 3px; height: 3px; background: white; border-radius: 50%; animation: twinkle 3s ease-in-out infinite; }
+        @keyframes twinkle { 0%, 100% { opacity: 0.2; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.5); } }
+        @media (max-height: 600px) { .subtitle { margin-bottom: 16px; } h1 { font-size: 1.8rem; } .emoji-display { font-size: 3rem; margin: 12px 0; padding: 16px; } .home-title-icon { font-size: 3rem; } }
+        @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+    </style>
+</head>
+<body>
+    <div id="bg-canvas"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="orb orb-4"></div>
+    <div id="app">
+        <div id="home" class="screen active">
+            <div class="home-content">
+                <div class="home-title-icon">🎊</div>
+                <h1>Emoji Guess</h1>
+                <p class="subtitle">Kitty Party Edition</p>
+                <button class="btn-primary" onclick="goToCreate()">Create Game (Host)</button>
+                <button class="btn-secondary" onclick="goToJoin()">Join Game</button>
+            </div>
+        </div>
+        <div id="create-screen" class="screen">
+            <div class="create-content">
+                <h2>Create a Room ✨</h2>
+                <input type="text" id="host-name" placeholder="Your name" maxlength="20">
+                <label for="rounds-select">Number of Rounds</label>
+                <select id="rounds-select">
+                    <option value="5">5 Rounds</option>
+                    <option value="10" selected>10 Rounds</option>
+                    <option value="15">15 Rounds</option>
+                </select>
+                <button class="btn-primary" onclick="createRoom()">Create Room</button>
+                <div id="room-code-section" style="display: none;">
+                    <div class="room-code-display">
+                        <div class="code" id="room-code-display">XXXXXX</div>
+                        <button class="copy-btn" id="copy-btn" onclick="copyRoomCode()" title="Copy code">📋</button>
+                    </div>
+                    <div style="text-align: center; margin-bottom: 16px;">
+                        <p style="color: #C084FC; font-size: 0.9rem;">Share this code with friends!</p>
+                    </div>
+                    <h3>Players (<span id="player-count">1</span>)</h3>
+                    <div class="player-list" id="player-list">
+                        <div class="player-item">
+                            <span class="player-name" id="host-name-display">You</span>
+                            <span class="player-status">Host</span>
+                        </div>
+                    </div>
+                    <button class="btn-gold" id="start-btn" onclick="startGame()" disabled style="margin-top: 16px;">Start Game (2+ Players)</button>
+                </div>
+            </div>
+        </div>
+        <div id="join-screen" class="screen">
+            <div class="join-content">
+                <h2>Join a Game 🎮</h2>
+                <input type="text" id="room-code-input" placeholder="Room Code" maxlength="6" class="uppercase" oninput="this.value = this.value.toUpperCase()">
+                <input type="text" id="player-name" placeholder="Your name" maxlength="20">
+                <button class="btn-primary" onclick="joinRoom()">Join Room</button>
+                <button class="btn-secondary" onclick="goHome()">Back to Home</button>
+                <div id="join-loading" style="display: none; text-align: center; margin-top: 24px;">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 12px; color: #C084FC;">Joining game...</p>
+                </div>
+                <div id="join-error" class="error-message" style="display: none; margin-top: 16px;"></div>
+                <div id="join-waiting" style="display: none; text-align: center; margin-top: 32px;">
+                    <div style="font-size: 4rem; margin-bottom: 16px;">🎉</div>
+                    <p style="font-size: 1.2rem; font-weight: 700; color: #34D399;">You're in!</p>
+                    <p style="color: #B8A9D4; margin-top: 8px;">Waiting for the host to start...</p>
+                </div>
+            </div>
+        </div>
+        <div id="game-host" class="screen">
+            <div class="game-host-content">
+                <div class="round-counter" id="round-counter">Round 0/0</div>
+                <div class="emoji-display" id="host-emoji">🎉</div>
+                <div style="text-align: center;"><div class="category-badge" id="host-category">Category</div></div>
+                <div class="guess-feed">
+                    <div class="guess-feed-label">Correct Guesses</div>
+                    <div id="guess-feed" class="guess-feed-empty">Waiting for guesses...</div>
+                </div>
+                <div class="game-actions">
+                    <button class="btn-green" onclick="nextRound()">Next Round</button>
+                    <button class="btn-red" onclick="endGame()">End Game</button>
+                </div>
+            </div>
+        </div>
+        <div id="game-player" class="screen">
+            <div class="game-player-content">
+                <div class="round-counter" id="player-round-counter">Round 0/0</div>
+                <div class="emoji-display" id="player-emoji">🎉</div>
+                <div style="text-align: center;"><div class="category-badge" id="player-category">Category</div></div>
+                <p id="hint-text" style="text-align: center; color: #FCD34D; font-size: 0.9rem; margin-bottom: 12px;"></p>
+                <div class="score-display">Your Score: <span id="player-score">0</span> pts</div>
+                <div id="feedback" style="display: none;"></div>
+                <div class="game-input-section">
+                    <div class="guess-input-group">
+                        <input type="text" id="guess-input" placeholder="Your guess..." maxlength="30">
+                        <button onclick="submitGuess()">Send</button>
+                    </div>
+                    <button class="btn-red" onclick="endGamePlayer()" style="width: 100%; margin-top: 4px;">Leave Game</button>
+                </div>
+            </div>
+        </div>
+        <div id="leaderboard" class="screen">
+            <div class="leaderboard-content">
+                <h2 style="text-align: center; margin-bottom: 24px;">Game Over! 🎊</h2>
+                <div id="winner-section"></div>
+                <h3 style="margin: 20px 0 12px 0; text-align: center;">Final Scores</h3>
+                <div class="scoreboard" id="final-scoreboard"></div>
+                <button class="btn-gold" id="play-again-btn" onclick="playAgain()" style="display: none; margin-top: 16px;">Play Again</button>
+                <button class="btn-secondary" onclick="goHome()" style="margin-top: 8px;">Back to Home</button>
+            </div>
+        </div>
+    </div>
+    <div class="online-counter">
+        <span class="online-counter-dot"></span>
+        <span id="online-count">0</span> online
+    </div>
+    <script>
+        (function createStars() {
+            for (let i = 0; i < 40; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = (Math.random() * 3) + 's';
+                star.style.animationDuration = (2 + Math.random() * 3) + 's';
+                document.body.appendChild(star);
+            }
+        })();
+        const gameState = { roomCode: null, playerName: null, isHost: false, currentScore: 0, totalRounds: 10, currentRound: 0, currentEmoji: null, currentCategory: null, currentHint: null, hasGuessedThisRound: false, players: [], leaderboard: [], gameStarted: false, onlinePlayers: 0 };
+        const socketURL = window.location.origin.includes('localhost') ? 'http://localhost:3000' : window.location.origin;
+        const socket = io(socketURL, { reconnection: true, reconnectionDelay: 1000, reconnectionDelayMax: 5000, reconnectionAttempts: 5 });
+        socket.on('connect', () => console.log('Connected'));
+        socket.on('room-created', (data) => { gameState.roomCode = data.roomCode; gameState.totalRounds = data.totalRounds; gameState.isHost = true; document.getElementById('room-code-display').textContent = data.roomCode; document.getElementById('room-code-section').style.display = 'block'; document.getElementById('host-name-display').textContent = gameState.playerName; updatePlayerList([gameState.playerName]); });
+        socket.on('player-joined', (data) => { gameState.players = data.players; updatePlayerList(data.players); updateOnlineCount(data.onlinePlayers); });
+        socket.on('round-start', (data) => {
+            gameState.currentRound = data.roundNumber; gameState.currentEmoji = data.emoji; gameState.currentCategory = data.category; gameState.currentHint = data.hint; gameState.hasGuessedThisRound = false;
+            if (gameState.isHost) { showScreen('game-host'); document.getElementById('round-counter').textContent = 'Round ' + data.roundNumber + '/' + gameState.totalRounds; document.getElementById('host-emoji').textContent = data.emoji; document.getElementById('host-category').textContent = data.category; document.getElementById('guess-feed').innerHTML = '<div class="guess-feed-empty">Waiting for guesses...</div>'; }
+            else { showScreen('game-player'); document.getElementById('player-round-counter').textContent = 'Round ' + data.roundNumber + '/' + gameState.totalRounds; document.getElementById('player-emoji').textContent = data.emoji; document.getElementById('player-category').textContent = data.category; document.getElementById('hint-text').textContent = '💡 Hint: ' + data.hint; document.getElementById('guess-input').value = ''; document.getElementById('guess-input').disabled = false; document.getElementById('feedback').style.display = 'none'; }
+        });
+        socket.on('guess-result', (data) => { if (data.isCorrect) { vibrate(200); playSound('correct'); gameState.currentScore += data.points; showFeedback(true, '+' + data.points + ' pts! ' + getPositionEmoji(data.position)); gameState.hasGuessedThisRound = true; document.getElementById('guess-input').disabled = true; document.getElementById('player-score').textContent = gameState.currentScore; } else { playSound('error'); showFeedback(false, 'Try again!'); document.getElementById('guess-input').value = ''; } });
+        socket.on('round-update', (data) => { if (gameState.isHost) { const feedDiv = document.getElementById('guess-feed'); if (feedDiv.querySelector('.guess-feed-empty')) feedDiv.innerHTML = ''; const el = document.createElement('div'); el.className = 'guess-item correct'; el.innerHTML = '<div class="guess-position">' + getPositionEmoji(data.position) + '</div><div class="guess-name">' + escapeHtml(data.playerName) + '</div><div class="guess-emoji">✅</div>'; feedDiv.appendChild(el); feedDiv.scrollTop = feedDiv.scrollHeight; } });
+        socket.on('round-end', (data) => { if (gameState.isHost) { setTimeout(() => { const badge = document.getElementById('host-category'); badge.textContent = 'Answer: ' + data.answer; badge.style.background = 'linear-gradient(135deg, #34D399, #10B981)'; }, 400); } });
+        socket.on('game-over', (data) => { gameState.leaderboard = data.leaderboard; showLeaderboard(data.leaderboard); });
+        socket.on('error', (data) => showError(data.message));
+        socket.on('online-count', (count) => updateOnlineCount(count));
+        socket.on('host-disconnected', () => { showError('Host left — game ended.'); setTimeout(goHome, 2000); });
+        function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); const screen = document.getElementById(id); if (screen) { screen.classList.add('active'); } }
+        function goHome() { gameState.roomCode = null; gameState.playerName = null; gameState.isHost = false; gameState.currentScore = 0; document.getElementById('join-waiting').style.display = 'none'; showScreen('home'); }
+        function goToCreate() { document.getElementById('host-name').value = ''; document.getElementById('room-code-section').style.display = 'none'; showScreen('create-screen'); }
+        function goToJoin() { document.getElementById('room-code-input').value = ''; document.getElementById('player-name').value = ''; document.getElementById('join-error').style.display = 'none'; document.getElementById('join-loading').style.display = 'none'; document.getElementById('join-waiting').style.display = 'none'; showScreen('join-screen'); }
+        function createRoom() { const name = document.getElementById('host-name').value.trim(); if (!name) { showError('Please enter your name'); return; } gameState.playerName = name; gameState.totalRounds = parseInt(document.getElementById('rounds-select').value); socket.emit('create-room', { playerName: name, totalRounds: gameState.totalRounds }); }
+        function joinRoom() { const code = document.getElementById('room-code-input').value.trim().toUpperCase(); const name = document.getElementById('player-name').value.trim(); if (!code || code.length !== 6) { showError('Enter a valid 6-character room code'); return; } if (!name) { showError('Please enter your name'); return; } gameState.playerName = name; gameState.roomCode = code; document.getElementById('join-loading').style.display = 'block'; document.getElementById('join-error').style.display = 'none'; socket.emit('join-room', { roomCode: code, playerName: name }, (response) => { document.getElementById('join-loading').style.display = 'none'; if (response && response.success) { gameState.totalRounds = response.totalRounds; updatePlayerList(response.players); document.getElementById('join-waiting').style.display = 'block'; } else { showError(response?.error || 'Failed to join room'); } }); }
+        function startGame() { if (gameState.players.length < 2) { showError('Need at least 2 players'); return; } socket.emit('start-game', { roomCode: gameState.roomCode }); }
+        function submitGuess() { const input = document.getElementById('guess-input'); if (gameState.hasGuessedThisRound || !input.value.trim()) return; socket.emit('submit-guess', { roomCode: gameState.roomCode, guess: input.value.trim() }); input.disabled = true; }
+        function nextRound() { socket.emit('next-round', { roomCode: gameState.roomCode }); }
+        function endGame() { socket.emit('end-game', { roomCode: gameState.roomCode }); }
+        function endGamePlayer() { socket.disconnect(); goHome(); }
+        function playAgain() { socket.connect(); goHome(); }
+        document.addEventListener('keydown', (e) => { if (e.key === 'Enter' && document.getElementById('game-player').classList.contains('active')) { submitGuess(); } });
+        function updatePlayerList(players) { gameState.players = players; const colors = ['#C084FC', '#FF6B9D', '#FCD34D', '#34D399', '#60A5FA', '#F97316']; document.getElementById('player-list').innerHTML = players.map((name, i) => '<div class="player-item" style="border-left-color: ' + colors[i % colors.length] + '"><span class="player-name">' + escapeHtml(name) + '</span><span class="player-status">' + (i === 0 ? 'Host' : 'Player') + '</span></div>').join(''); document.getElementById('player-count').textContent = players.length; document.getElementById('start-btn').disabled = players.length < 2; if (players.length >= 2) { document.getElementById('start-btn').textContent = 'Start Game (' + players.length + ' Players)'; } }
+        function showFeedback(ok, msg) { const el = document.getElementById('feedback'); el.className = 'feedback ' + (ok ? 'success' : 'error'); el.textContent = (ok ? '✅ ' : '❌ ') + msg; el.style.display = 'block'; if (!ok) setTimeout(() => { el.style.display = 'none'; }, 2000); }
+        function showError(msg) { const el = document.getElementById('join-error'); if (el) { el.textContent = msg; el.style.display = 'block'; } }
+        function showLeaderboard(lb) { showScreen('leaderboard'); if (lb.length > 0) { const w = lb[0]; document.getElementById('winner-section').innerHTML = '<div class="leaderboard-winner"><div class="leaderboard-winner-emoji">🏆</div><div class="leaderboard-winner-name">' + escapeHtml(w.name) + '</div><div class="leaderboard-winner-score">' + w.score + ' points</div></div>'; createConfetti(); } const medals = ['🥇', '🥈', '🥉']; document.getElementById('final-scoreboard').innerHTML = lb.map((e, i) => '<div class="scoreboard-item"><div class="scoreboard-rank">' + (medals[i] || (i+1) + '.') + '</div><div class="scoreboard-name">' + escapeHtml(e.name) + '</div><div class="scoreboard-score">' + e.score + '</div></div>').join(''); if (gameState.isHost) document.getElementById('play-again-btn').style.display = 'block'; }
+        function updateOnlineCount(n) { gameState.onlinePlayers = n; document.getElementById('online-count').textContent = n; }
+        function copyRoomCode() { navigator.clipboard.writeText(gameState.roomCode).then(() => { const btn = document.getElementById('copy-btn'); btn.textContent = '✓'; setTimeout(() => { btn.textContent = '📋'; }, 2000); }); }
+        function getPositionEmoji(pos) { return ['🥇', '🥈', '🥉'][pos - 1] || '#' + pos; }
+        function vibrate(ms) { if (navigator.vibrate) navigator.vibrate(ms); }
+        function playSound(type) { try { const ctx = new (window.AudioContext || window.webkitAudioContext)(); const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.connect(gain); gain.connect(ctx.destination); if (type === 'correct') { osc.frequency.setValueAtTime(600, ctx.currentTime); osc.frequency.linearRampToValueAtTime(1200, ctx.currentTime + 0.15); gain.gain.setValueAtTime(0.25, ctx.currentTime); gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.25); osc.start(); osc.stop(ctx.currentTime + 0.25); } else { osc.frequency.setValueAtTime(400, ctx.currentTime); osc.frequency.linearRampToValueAtTime(200, ctx.currentTime + 0.12); gain.gain.setValueAtTime(0.15, ctx.currentTime); gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.15); osc.start(); osc.stop(ctx.currentTime + 0.15); } } catch(e) {} }
+        function createConfetti() { const colors = ['#FF6B9D','#C084FC','#FCD34D','#34D399','#60A5FA','#F97316']; for (let i = 0; i < 80; i++) { const c = document.createElement('div'); c.className = 'confetti'; const size = 6 + Math.random() * 8; c.style.left = Math.random() * 100 + '%'; c.style.top = '-10px'; c.style.width = size + 'px'; c.style.height = size + 'px'; c.style.background = colors[Math.floor(Math.random() * colors.length)]; c.style.animationDelay = (Math.random() * 1.5) + 's'; c.style.animationDuration = (2 + Math.random() * 2) + 's'; c.style.borderRadius = '50%'; document.body.appendChild(c); setTimeout(() => c.remove(), 4500); } }
+        function escapeHtml(text) { const d = document.createElement('div'); d.textContent = text; return d.innerHTML; }
+        document.body.addEventListener('touchmove', (e) => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
+    </script>
+</body>
+</html>

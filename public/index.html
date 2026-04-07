@@ -1,529 +1,461 @@
 <!DOCTYPE html>
 <html lang="te">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>vasavi GMR Kitty 🎉</title>
-  <script src="/socket.io/socket.io.js"></script>
-  <style>
-    /* ===== RESET & BASE ===== */
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>vasavi GMR Kitty ✨</title>
+<script src="/socket.io/socket.io.js"></script>
+<style>
+/* ===== FONTS & RESET ===== */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap');
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      min-height: 100vh;
-      background: radial-gradient(ellipse at top, #1a0533 0%, #0d0d1a 60%, #000000 100%);
-      color: #ffffff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow-x: hidden;
-      position: relative;
-    }
+/* ===== ANIMATED BG ===== */
+body {
+  font-family:'Nunito',sans-serif;
+  min-height:100vh;
+  background:#0a0015;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow-x:hidden;
+  position:relative;
+}
 
-    /* Floating particles */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        radial-gradient(1px 1px at 15% 20%, rgba(255,255,255,0.6) 0%, transparent 100%),
-        radial-gradient(1px 1px at 35% 70%, rgba(255,255,255,0.4) 0%, transparent 100%),
-        radial-gradient(1px 1px at 55% 15%, rgba(255,255,255,0.5) 0%, transparent 100%),
-        radial-gradient(1px 1px at 75% 55%, rgba(255,255,255,0.3) 0%, transparent 100%),
-        radial-gradient(1px 1px at 90% 30%, rgba(255,255,255,0.6) 0%, transparent 100%),
-        radial-gradient(2px 2px at 5% 80%,  rgba(255,255,255,0.3) 0%, transparent 100%),
-        radial-gradient(1px 1px at 45% 90%, rgba(255,255,255,0.4) 0%, transparent 100%),
-        radial-gradient(1px 1px at 65% 40%, rgba(255,255,255,0.5) 0%, transparent 100%),
-        radial-gradient(2px 2px at 25% 45%, rgba(255,255,255,0.2) 0%, transparent 100%),
-        radial-gradient(1px 1px at 85% 75%, rgba(255,255,255,0.4) 0%, transparent 100%);
-      pointer-events: none;
-      z-index: 0;
-    }
+/* Animated gradient orbs */
+body::before {
+  content:'';
+  position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(168,85,247,0.35) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 80%, rgba(236,72,153,0.3) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 50% 50%, rgba(99,102,241,0.2) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 10% 80%, rgba(6,182,212,0.2) 0%, transparent 60%);
+  animation: bgPulse 8s ease-in-out infinite alternate;
+  pointer-events:none;z-index:0;
+}
+@keyframes bgPulse {
+  0%   { opacity:0.7; transform:scale(1) rotate(0deg); }
+  100% { opacity:1;   transform:scale(1.05) rotate(2deg); }
+}
 
-    .container {
-      position: relative;
-      z-index: 1;
-      max-width: 640px;
-      width: 100%;
-      padding: 24px 20px;
-    }
+/* Sparkle stars */
+body::after {
+  content:'✦ ✧ ✦ ✧ ✦ ✧ ✦ ✧ ✦ ✧';
+  position:fixed;inset:0;
+  font-size:0.7rem;
+  color:rgba(255,255,255,0.12);
+  display:flex;align-items:flex-start;
+  flex-wrap:wrap;gap:48px;
+  padding:24px;
+  pointer-events:none;z-index:0;
+  animation:twinkle 4s ease-in-out infinite alternate;
+}
+@keyframes twinkle {
+  0%   { opacity:0.3; }
+  100% { opacity:0.8; }
+}
 
-    /* ===== SCREENS ===== */
-    .screen { display: none; }
-    .screen.active { display: block; }
+.container{position:relative;z-index:1;max-width:620px;width:100%;padding:24px 18px;}
 
-    /* ===== GAME TITLE ===== */
-    .game-title {
-      text-align: center;
-      margin-bottom: 28px;
-    }
-    .game-title h1 {
-      font-size: 2rem;
-      font-weight: 900;
-      color: #c084fc;
-      text-transform: uppercase;
-      letter-spacing: 3px;
-      text-shadow: 0 0 30px rgba(192,132,252,0.5);
-    }
-    .game-title .subtitle {
-      margin-top: 6px;
-      font-size: 0.85rem;
-      color: rgba(255,255,255,0.5);
-      letter-spacing: 2px;
-    }
+/* ===== SCREENS ===== */
+.screen{display:none;}
+.screen.active{display:block;}
 
-    /* ===== GLASS CARD ===== */
-    .card {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 20px;
-      padding: 24px;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      margin-bottom: 18px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-    }
+/* ===== TITLE ===== */
+.game-title{text-align:center;margin-bottom:28px;}
+.game-title h1 {
+  font-size:2.2rem;font-weight:900;
+  background:linear-gradient(135deg,#f9a8d4,#c084fc,#818cf8,#67e8f9);
+  background-size:300% 300%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:shimmerText 4s ease-in-out infinite;
+  letter-spacing:2px;text-transform:uppercase;
+  filter:drop-shadow(0 0 20px rgba(192,132,252,0.5));
+}
+@keyframes shimmerText {
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
+}
+.game-title .sub {
+  margin-top:6px;font-size:0.85rem;letter-spacing:2px;
+  color:rgba(255,255,255,0.55);
+}
 
-    /* ===== INPUTS ===== */
-    input[type="text"], input[type="number"] {
-      width: 100%;
-      padding: 13px 16px;
-      margin-bottom: 12px;
-      background: rgba(255,255,255,0.07);
-      border: 1.5px solid rgba(255,255,255,0.12);
-      border-radius: 12px;
-      color: #ffffff;
-      font-size: 1rem;
-      font-family: inherit;
-      transition: border-color 0.2s;
-    }
-    input::placeholder { color: rgba(255,255,255,0.35); }
-    input:focus { outline: none; border-color: #c084fc; background: rgba(255,255,255,0.1); }
+/* ===== GLOWING CARD ===== */
+.card {
+  background:linear-gradient(135deg,rgba(168,85,247,0.1),rgba(236,72,153,0.08),rgba(99,102,241,0.1));
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:24px;
+  padding:26px;
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  margin-bottom:18px;
+  box-shadow:0 0 40px rgba(168,85,247,0.15), 0 8px 32px rgba(0,0,0,0.5);
+  position:relative;overflow:hidden;
+}
+/* Shiny card sweep */
+.card::before {
+  content:'';
+  position:absolute;top:-100%;left:-60%;
+  width:40%;height:300%;
+  background:linear-gradient(105deg,transparent,rgba(255,255,255,0.06),transparent);
+  animation:cardSweep 5s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes cardSweep {
+  0%{left:-60%;}
+  60%{left:160%;}
+  100%{left:160%;}
+}
 
-    /* ===== BUTTONS ===== */
-    button {
-      display: block;
-      width: 100%;
-      padding: 14px 20px;
-      border: none;
-      border-radius: 50px;
-      font-family: inherit;
-      font-size: 0.9rem;
-      font-weight: 800;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: transform 0.15s, box-shadow 0.15s;
-      margin-bottom: 10px;
-    }
-    button:last-child { margin-bottom: 0; }
-    button:hover { transform: translateY(-2px); }
-    button:active { transform: translateY(0px); }
+/* ===== INPUTS ===== */
+input[type=text],input[type=number]{
+  width:100%;padding:13px 18px;margin-bottom:12px;
+  background:rgba(255,255,255,0.07);
+  border:1.5px solid rgba(255,255,255,0.15);
+  border-radius:14px;color:#fff;
+  font-family:'Nunito',sans-serif;font-size:1rem;font-weight:700;
+  transition:all 0.2s;
+}
+input::placeholder{color:rgba(255,255,255,0.35);}
+input:focus{outline:none;border-color:#c084fc;background:rgba(192,132,252,0.1);box-shadow:0 0 20px rgba(192,132,252,0.2);}
 
-    .btn-host {
-      background: linear-gradient(135deg, #6d28d9, #a855f7);
-      color: #ffffff;
-      box-shadow: 0 4px 20px rgba(168,85,247,0.4);
-    }
-    .btn-join {
-      background: linear-gradient(135deg, #0ea5e9, #38bdf8);
-      color: #ffffff;
-      box-shadow: 0 4px 20px rgba(14,165,233,0.4);
-    }
-    .btn-start {
-      background: linear-gradient(135deg, #16a34a, #4ade80);
-      color: #ffffff;
-      font-size: 1.1rem;
-      padding: 16px;
-      box-shadow: 0 4px 20px rgba(74,222,128,0.35);
-      border-radius: 16px;
-    }
-    .btn-next {
-      background: linear-gradient(135deg, #16a34a, #4ade80);
-      color: #ffffff;
-      box-shadow: 0 4px 20px rgba(74,222,128,0.35);
-      border-radius: 16px;
-      font-size: 1rem;
-      padding: 15px;
-    }
-    .btn-end {
-      background: rgba(185,28,28,0.5);
-      border: 1.5px solid rgba(239,68,68,0.4);
-      color: #fca5a5;
-      border-radius: 16px;
-    }
-    .btn-end:hover { background: rgba(185,28,28,0.7); }
-    .btn-back {
-      background: transparent;
-      border: 1.5px solid rgba(255,255,255,0.2);
-      color: rgba(255,255,255,0.6);
-      border-radius: 12px;
-      font-size: 0.8rem;
-    }
-    .btn-play-again {
-      background: linear-gradient(135deg, #6d28d9, #a855f7);
-      color: #ffffff;
-      box-shadow: 0 4px 20px rgba(168,85,247,0.4);
-      border-radius: 16px;
-      font-size: 1rem;
-    }
+/* ===== BUTTONS ===== */
+button{
+  display:block;width:100%;
+  padding:15px 20px;border:none;
+  font-family:'Nunito',sans-serif;font-size:0.92rem;font-weight:900;
+  letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;
+  transition:all 0.2s;border-radius:50px;margin-bottom:10px;
+  position:relative;overflow:hidden;
+}
+button:last-child{margin-bottom:0;}
 
-    /* ===== ROOM CODE ===== */
-    .room-code-box {
-      text-align: center;
-      background: rgba(192,132,252,0.08);
-      border: 1.5px solid rgba(192,132,252,0.3);
-      border-radius: 16px;
-      padding: 18px;
-      margin-bottom: 18px;
-    }
-    .room-code-box .rc-label {
-      font-size: 0.72rem;
-      color: rgba(255,255,255,0.45);
-      letter-spacing: 3px;
-      text-transform: uppercase;
-    }
-    .room-code-box .rc-code {
-      font-size: 2.8rem;
-      font-weight: 900;
-      color: #c084fc;
-      letter-spacing: 10px;
-      line-height: 1.2;
-      margin-top: 4px;
-    }
+/* Shimmer sweep on all buttons */
+button::after{
+  content:'';position:absolute;top:0;left:-75%;
+  width:50%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.25),transparent);
+  transform:skewX(-15deg);
+  transition:left 0.4s;
+}
+button:hover::after{left:125%;}
+button:hover{transform:translateY(-3px);filter:brightness(1.1);}
+button:active{transform:translateY(-1px);}
 
-    /* ===== ROUND HEADER ===== */
-    .round-header {
-      text-align: center;
-      font-size: 0.82rem;
-      font-weight: 800;
-      letter-spacing: 3px;
-      color: #c084fc;
-      text-transform: uppercase;
-      margin-bottom: 16px;
-    }
+.btn-host{
+  background:linear-gradient(135deg,#7c3aed,#a855f7,#c084fc);
+  color:#fff;
+  box-shadow:0 4px 24px rgba(168,85,247,0.5),0 0 0 1px rgba(255,255,255,0.1) inset;
+}
+.btn-join{
+  background:linear-gradient(135deg,#0891b2,#06b6d4,#67e8f9);
+  color:#0a0015;
+  box-shadow:0 4px 24px rgba(6,182,212,0.5),0 0 0 1px rgba(255,255,255,0.1) inset;
+}
+.btn-start{
+  background:linear-gradient(135deg,#059669,#10b981,#6ee7b7);
+  color:#fff;
+  font-size:1.05rem;padding:16px;
+  border-radius:18px;
+  box-shadow:0 4px 28px rgba(16,185,129,0.5),0 0 0 1px rgba(255,255,255,0.1) inset;
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{box-shadow:0 4px 28px rgba(16,185,129,0.5);}
+  50%{box-shadow:0 4px 40px rgba(16,185,129,0.8),0 0 20px rgba(110,231,183,0.3);}
+}
+.btn-next{
+  background:linear-gradient(135deg,#059669,#10b981,#6ee7b7);
+  color:#fff;border-radius:18px;
+  box-shadow:0 4px 24px rgba(16,185,129,0.4);
+}
+.btn-end{
+  background:linear-gradient(135deg,rgba(127,29,29,0.6),rgba(185,28,28,0.4));
+  border:1.5px solid rgba(248,113,113,0.3);
+  color:#fca5a5;border-radius:18px;
+}
+.btn-back{
+  background:rgba(255,255,255,0.05);
+  border:1.5px solid rgba(255,255,255,0.15);
+  color:rgba(255,255,255,0.5);
+  border-radius:14px;font-size:0.8rem;
+}
+.btn-again{
+  background:linear-gradient(135deg,#7c3aed,#ec4899,#f59e0b);
+  background-size:200% 200%;
+  animation:rainbowBtn 3s ease infinite;
+  color:#fff;border-radius:18px;
+  box-shadow:0 4px 28px rgba(236,72,153,0.4);
+}
+@keyframes rainbowBtn{
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
+}
 
-    /* ===== EMOJI DISPLAY ===== */
-    .emoji-box {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.09);
-      border-radius: 20px;
-      padding: 28px 20px;
-      text-align: center;
-      font-size: 3.8rem;
-      letter-spacing: 10px;
-      margin-bottom: 16px;
-      line-height: 1.2;
-      /* floating dots inside */
-      position: relative;
-      overflow: hidden;
-    }
-    .emoji-box::before {
-      content: '•';
-      position: absolute;
-      left: 10px; top: 50%;
-      color: rgba(255,255,255,0.15);
-      font-size: 0.5rem;
-    }
-    .emoji-box::after {
-      content: '•';
-      position: absolute;
-      right: 10px; bottom: 15px;
-      color: rgba(255,255,255,0.15);
-      font-size: 0.5rem;
-    }
+/* ===== ROOM CODE ===== */
+.room-code-box{
+  text-align:center;
+  background:linear-gradient(135deg,rgba(192,132,252,0.12),rgba(236,72,153,0.1));
+  border:1.5px solid rgba(192,132,252,0.4);
+  border-radius:20px;padding:20px;margin-bottom:18px;
+  box-shadow:0 0 30px rgba(192,132,252,0.15);
+}
+.room-code-box .rc-label{
+  font-size:0.72rem;color:rgba(255,255,255,0.5);
+  letter-spacing:3px;text-transform:uppercase;
+}
+.room-code-box .rc-code{
+  font-size:3rem;font-weight:900;letter-spacing:12px;
+  background:linear-gradient(135deg,#f9a8d4,#c084fc,#818cf8);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:shimmerText 3s ease infinite;
+  line-height:1.3;margin-top:4px;
+  filter:drop-shadow(0 0 12px rgba(192,132,252,0.4));
+}
 
-    /* ===== HINT PILL ===== */
-    .hint-pill {
-      text-align: center;
-      margin-bottom: 18px;
-    }
-    .hint-pill span {
-      display: inline-block;
-      background: linear-gradient(135deg, #f59e0b, #fbbf24);
-      color: #1a0533;
-      padding: 8px 26px;
-      border-radius: 50px;
-      font-weight: 900;
-      font-size: 0.9rem;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      box-shadow: 0 4px 16px rgba(251,191,36,0.35);
-    }
+/* ===== ROUND HEADER ===== */
+.round-hdr{
+  text-align:center;font-size:0.82rem;font-weight:900;
+  letter-spacing:4px;text-transform:uppercase;margin-bottom:16px;
+  background:linear-gradient(135deg,#c084fc,#818cf8);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
 
-    /* ===== CORRECT GUESSES CARD ===== */
-    .guesses-card {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.09);
-      border-radius: 20px;
-      padding: 20px;
-      margin-bottom: 18px;
-    }
-    .guesses-card-title {
-      font-size: 0.72rem;
-      font-weight: 800;
-      letter-spacing: 3px;
-      color: #c084fc;
-      text-transform: uppercase;
-      margin-bottom: 14px;
-    }
-    .guesses-feed {
-      min-height: 80px;
-      max-height: 200px;
-      overflow-y: auto;
-    }
-    .guess-item {
-      padding: 8px 12px;
-      border-radius: 8px;
-      background: rgba(255,255,255,0.04);
-      font-size: 0.88rem;
-      color: rgba(255,255,255,0.8);
-      margin-bottom: 6px;
-      animation: fadeSlide 0.3s ease;
-    }
-    @keyframes fadeSlide {
-      from { opacity: 0; transform: translateY(-6px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .waiting-msg {
-      text-align: center;
-      color: rgba(255,255,255,0.25);
-      font-size: 0.85rem;
-      padding: 10px 0;
-    }
+/* ===== EMOJI BOX ===== */
+.emoji-box{
+  background:linear-gradient(135deg,rgba(168,85,247,0.12),rgba(236,72,153,0.08),rgba(99,102,241,0.12));
+  border:1.5px solid rgba(255,255,255,0.12);
+  border-radius:24px;padding:28px 20px;
+  text-align:center;font-size:4rem;letter-spacing:12px;
+  margin-bottom:16px;line-height:1.3;
+  box-shadow:0 0 40px rgba(168,85,247,0.2), inset 0 0 30px rgba(255,255,255,0.02);
+  animation:emojiGlow 3s ease-in-out infinite alternate;
+  position:relative;overflow:hidden;
+}
+@keyframes emojiGlow{
+  0%{box-shadow:0 0 30px rgba(168,85,247,0.2);}
+  100%{box-shadow:0 0 50px rgba(236,72,153,0.35),0 0 20px rgba(192,132,252,0.2);}
+}
+.emoji-box::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,0.04) 50%,transparent 70%);
+  animation:cardSweep 4s ease-in-out infinite;
+}
 
-    /* ===== PLAYER LIST ===== */
-    .section-label {
-      font-size: 0.72rem;
-      font-weight: 800;
-      letter-spacing: 3px;
-      color: #c084fc;
-      text-transform: uppercase;
-      margin-bottom: 12px;
-    }
-    .player-list { list-style: none; }
-    .player-list li {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px 14px;
-      background: rgba(255,255,255,0.04);
-      border-radius: 10px;
-      margin-bottom: 8px;
-      font-size: 0.9rem;
-      color: rgba(255,255,255,0.85);
-    }
-    .player-list li .pscore { color: #c084fc; font-weight: 700; }
+/* ===== HINT PILL ===== */
+.hint-pill{text-align:center;margin-bottom:18px;}
+.hint-pill span{
+  display:inline-block;
+  background:linear-gradient(135deg,#f59e0b,#fbbf24,#fde68a);
+  color:#1a0010;
+  padding:9px 28px;border-radius:50px;
+  font-weight:900;font-size:0.92rem;letter-spacing:1px;text-transform:uppercase;
+  box-shadow:0 4px 20px rgba(251,191,36,0.45),0 0 0 3px rgba(251,191,36,0.15);
+  animation:hintPulse 2.5s ease-in-out infinite;
+}
+@keyframes hintPulse{
+  0%,100%{box-shadow:0 4px 20px rgba(251,191,36,0.45),0 0 0 3px rgba(251,191,36,0.15);}
+  50%{box-shadow:0 4px 30px rgba(251,191,36,0.7),0 0 0 5px rgba(251,191,36,0.2);}
+}
 
-    /* ===== SCORE BADGE (PLAYER) ===== */
-    .score-row {
-      text-align: center;
-      margin-bottom: 14px;
-    }
-    .score-chip {
-      display: inline-block;
-      background: rgba(192,132,252,0.15);
-      border: 1px solid rgba(192,132,252,0.3);
-      color: #c084fc;
-      padding: 5px 18px;
-      border-radius: 20px;
-      font-size: 0.82rem;
-      font-weight: 700;
-      letter-spacing: 1px;
-    }
+/* ===== GUESSES CARD ===== */
+.guesses-card{
+  background:linear-gradient(135deg,rgba(16,185,129,0.07),rgba(6,182,212,0.05));
+  border:1px solid rgba(16,185,129,0.2);
+  border-radius:20px;padding:20px;margin-bottom:18px;
+  box-shadow:0 0 20px rgba(16,185,129,0.08);
+}
+.g-title{
+  font-size:0.72rem;font-weight:900;letter-spacing:3px;
+  text-transform:uppercase;margin-bottom:14px;
+  color:#34d399;
+}
+.guesses-feed{min-height:80px;max-height:200px;overflow-y:auto;}
+.guess-item{
+  padding:8px 14px;border-radius:10px;
+  background:rgba(52,211,153,0.1);border-left:3px solid #34d399;
+  font-size:0.88rem;color:rgba(255,255,255,0.85);
+  margin-bottom:6px;animation:fadeSlide 0.3s ease;
+}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+.waiting-msg{text-align:center;color:rgba(255,255,255,0.25);font-size:0.85rem;padding:10px 0;}
 
-    /* ===== OPTIONS GRID ===== */
-    .options-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 14px;
-    }
-    .opt-btn {
-      padding: 16px 10px;
-      background: rgba(255,255,255,0.06);
-      border: 1.5px solid rgba(255,255,255,0.12);
-      border-radius: 14px;
-      color: #ffffff;
-      font-family: inherit;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.15s;
-      text-align: center;
-      line-height: 1.35;
-      min-height: 58px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-transform: none;
-      letter-spacing: 0;
-    }
-    .opt-btn:hover:not(:disabled) {
-      background: rgba(192,132,252,0.18);
-      border-color: #c084fc;
-      transform: translateY(-2px);
-    }
-    .opt-btn.correct {
-      background: rgba(74,222,128,0.2) !important;
-      border-color: #4ade80 !important;
-      color: #4ade80 !important;
-    }
-    .opt-btn.wrong {
-      background: rgba(239,68,68,0.12) !important;
-      border-color: rgba(239,68,68,0.3) !important;
-      color: rgba(255,255,255,0.35) !important;
-    }
-    .opt-btn:disabled { cursor: not-allowed; }
+/* ===== SECTION LABEL ===== */
+.sec-label{
+  font-size:0.72rem;font-weight:900;letter-spacing:3px;
+  text-transform:uppercase;margin-bottom:12px;color:#c084fc;
+}
 
-    /* ===== STATUS BAR ===== */
-    .status-bar {
-      text-align: center;
-      padding: 10px;
-      border-radius: 10px;
-      font-size: 0.88rem;
-      font-weight: 600;
-      margin-bottom: 10px;
-    }
-    .status-bar.ok  { background: rgba(74,222,128,0.12); color: #4ade80; }
-    .status-bar.err { background: rgba(239,68,68,0.12);  color: #f87171; }
-    .status-bar.inf { background: rgba(56,189,248,0.12); color: #38bdf8; }
+/* ===== PLAYER LIST ===== */
+.player-list{list-style:none;}
+.player-list li{
+  display:flex;justify-content:space-between;
+  padding:10px 14px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:12px;margin-bottom:8px;
+  font-size:0.9rem;color:rgba(255,255,255,0.85);
+  transition:all 0.2s;
+}
+.player-list li:hover{background:rgba(192,132,252,0.08);border-color:rgba(192,132,252,0.2);}
+.player-list li .pscore{
+  background:linear-gradient(135deg,#c084fc,#818cf8);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  font-weight:900;
+}
 
-    /* ===== FINAL SCORES ===== */
-    .final-list { list-style: none; }
-    .final-list li {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 14px 16px;
-      background: rgba(255,255,255,0.04);
-      border-radius: 14px;
-      margin-bottom: 10px;
-    }
-    .medal {
-      font-size: 1.6rem;
-      flex-shrink: 0;
-      width: 40px;
-      text-align: center;
-    }
-    .final-name { flex: 1; font-weight: 700; font-size: 0.95rem; color: #ffffff; }
-    .final-pts  { font-weight: 900; font-size: 1.05rem; color: #c084fc; }
+/* ===== SCORE CHIP ===== */
+.score-row{text-align:center;margin-bottom:14px;}
+.score-chip{
+  display:inline-block;
+  background:linear-gradient(135deg,rgba(192,132,252,0.2),rgba(129,140,248,0.2));
+  border:1.5px solid rgba(192,132,252,0.4);
+  color:#e9d5ff;padding:6px 20px;border-radius:50px;
+  font-size:0.85rem;font-weight:900;letter-spacing:1px;
+  box-shadow:0 0 16px rgba(192,132,252,0.2);
+}
 
-    /* ===== TOAST NOTIFICATION ===== */
-    #toast {
-      position: fixed;
-      top: 20px; right: 20px;
-      background: rgba(20,10,40,0.95);
-      border: 1px solid rgba(192,132,252,0.3);
-      color: #e9d5ff;
-      padding: 12px 20px;
-      border-radius: 12px;
-      font-size: 0.88rem;
-      font-weight: 600;
-      z-index: 9999;
-      opacity: 0;
-      pointer-events: none;
-      transform: translateX(20px);
-      transition: opacity 0.25s, transform 0.25s;
-      max-width: 280px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.5);
-    }
-    #toast.show { opacity: 1; transform: translateX(0); pointer-events: auto; }
+/* ===== OPTIONS GRID ===== */
+.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.opt-btn{
+  padding:17px 12px;
+  background:linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.03));
+  border:1.5px solid rgba(255,255,255,0.12);
+  border-radius:16px;color:#fff;
+  font-family:'Nunito',sans-serif;font-size:0.95rem;font-weight:800;
+  cursor:pointer;transition:all 0.18s;
+  text-align:center;line-height:1.35;min-height:62px;
+  display:flex;align-items:center;justify-content:center;
+  text-transform:none;letter-spacing:0;
+  position:relative;overflow:hidden;
+}
+.opt-btn::after{
+  content:'';position:absolute;top:0;left:-75%;
+  width:50%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);
+  transform:skewX(-15deg);transition:left 0.35s;
+}
+.opt-btn:hover:not(:disabled)::after{left:125%;}
+.opt-btn:hover:not(:disabled){
+  background:linear-gradient(135deg,rgba(192,132,252,0.25),rgba(129,140,248,0.2));
+  border-color:#c084fc;
+  transform:translateY(-3px) scale(1.02);
+  box-shadow:0 8px 24px rgba(192,132,252,0.3);
+}
+.opt-btn.correct{
+  background:linear-gradient(135deg,rgba(16,185,129,0.35),rgba(52,211,153,0.25)) !important;
+  border-color:#10b981 !important;color:#6ee7b7 !important;
+  box-shadow:0 0 20px rgba(16,185,129,0.4) !important;
+  animation:correctPop 0.4s ease;
+}
+@keyframes correctPop{0%{transform:scale(1);}50%{transform:scale(1.07);}100%{transform:scale(1);}}
+.opt-btn.wrong{
+  background:rgba(239,68,68,0.08) !important;
+  border-color:rgba(239,68,68,0.25) !important;
+  color:rgba(255,255,255,0.25) !important;
+}
+.opt-btn:disabled{cursor:not-allowed;}
 
-    /* ===== LIGHT MODE OVERRIDES ===== */
-    @media (prefers-color-scheme: light) {
-      body {
-        background: linear-gradient(135deg, #f3e8ff 0%, #e0e7ff 50%, #dbeafe 100%);
-        color: #1e1b4b;
-      }
-      body::before { display: none; }
-      .card, .guesses-card, .emoji-box {
-        background: rgba(255,255,255,0.75);
-        border-color: rgba(109,40,217,0.15);
-        box-shadow: 0 4px 24px rgba(109,40,217,0.1);
-      }
-      .game-title h1 { color: #6d28d9; text-shadow: none; }
-      .game-title .subtitle, .round-header { color: #7c3aed; }
-      .section-label, .guesses-card-title, .score-chip { color: #7c3aed; }
-      .score-chip { background: rgba(124,58,237,0.1); border-color: rgba(124,58,237,0.25); }
-      input[type="text"], input[type="number"] {
-        background: rgba(255,255,255,0.8);
-        border-color: rgba(109,40,217,0.2);
-        color: #1e1b4b;
-      }
-      input::placeholder { color: rgba(30,27,75,0.4); }
-      input:focus { border-color: #7c3aed; background: #fff; }
-      .opt-btn {
-        background: rgba(255,255,255,0.8);
-        border-color: rgba(109,40,217,0.2);
-        color: #1e1b4b;
-      }
-      .opt-btn:hover:not(:disabled) { background: rgba(124,58,237,0.1); border-color: #7c3aed; }
-      .room-code-box { background: rgba(124,58,237,0.08); border-color: rgba(124,58,237,0.3); }
-      .room-code-box .rc-label { color: rgba(30,27,75,0.5); }
-      .room-code-box .rc-code { color: #6d28d9; }
-      .player-list li { background: rgba(109,40,217,0.06); color: #1e1b4b; }
-      .player-list li .pscore { color: #6d28d9; }
-      .guess-item { background: rgba(109,40,217,0.06); color: #1e1b4b; }
-      .waiting-msg { color: rgba(30,27,75,0.4); }
-      .btn-back { border-color: rgba(30,27,75,0.2); color: rgba(30,27,75,0.55); }
-      .btn-end { background: rgba(220,38,38,0.1); border-color: rgba(220,38,38,0.3); color: #b91c1c; }
-      #toast { background: rgba(255,255,255,0.97); border-color: rgba(124,58,237,0.25); color: #4c1d95; }
-      .final-list li { background: rgba(109,40,217,0.06); }
-      .final-name { color: #1e1b4b; }
-      .final-pts  { color: #6d28d9; }
-    }
-  </style>
+/* ===== STATUS BAR ===== */
+.status-bar{
+  text-align:center;padding:10px;border-radius:12px;
+  font-size:0.88rem;font-weight:700;margin-bottom:10px;
+}
+.status-bar.ok {background:rgba(16,185,129,0.12);color:#34d399;border:1px solid rgba(16,185,129,0.2);}
+.status-bar.err{background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.2);}
+.status-bar.inf{background:rgba(99,102,241,0.12);color:#a5b4fc;border:1px solid rgba(99,102,241,0.2);}
+
+/* ===== FINAL SCORES ===== */
+.final-list{list-style:none;}
+.final-list li{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 18px;border-radius:16px;margin-bottom:10px;
+  background:linear-gradient(135deg,rgba(168,85,247,0.1),rgba(236,72,153,0.07));
+  border:1px solid rgba(255,255,255,0.08);
+  transition:all 0.2s;
+}
+.final-list li:first-child{
+  background:linear-gradient(135deg,rgba(245,158,11,0.2),rgba(251,191,36,0.1));
+  border-color:rgba(251,191,36,0.3);
+  box-shadow:0 0 20px rgba(251,191,36,0.15);
+}
+.medal{font-size:1.7rem;flex-shrink:0;width:42px;text-align:center;}
+.final-name{flex:1;font-weight:900;font-size:0.95rem;}
+.final-pts{
+  font-weight:900;font-size:1.05rem;
+  background:linear-gradient(135deg,#f9a8d4,#c084fc);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+
+/* ===== TOAST ===== */
+#toast{
+  position:fixed;top:20px;right:20px;
+  background:linear-gradient(135deg,rgba(30,10,60,0.97),rgba(50,20,80,0.95));
+  border:1px solid rgba(192,132,252,0.35);
+  color:#e9d5ff;padding:12px 20px;border-radius:14px;
+  font-size:0.88rem;font-weight:700;z-index:9999;
+  opacity:0;pointer-events:none;
+  transform:translateX(20px) scale(0.95);
+  transition:all 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  max-width:290px;box-shadow:0 8px 32px rgba(0,0,0,0.5),0 0 20px rgba(192,132,252,0.15);
+}
+#toast.show{opacity:1;transform:translateX(0) scale(1);pointer-events:auto;}
+</style>
 </head>
 <body>
 <div id="toast"></div>
 <div class="container">
 
-  <!-- ===== HOME ===== -->
+  <!-- HOME -->
   <div class="screen active" id="s-home">
     <div class="game-title">
       <h1>vasavi GMR Kitty</h1>
-      <div class="subtitle">తెలుగు సినిమా ఎమోజీ గేమ్ 🎭</div>
+      <div class="sub">తెలుగు సినిమా ఎమోజీ గేమ్ 🎭✨</div>
     </div>
     <div class="card">
-      <input type="text" id="home-name" placeholder="మీ పేరు రాయండి..." maxlength="20" />
+      <input type="text" id="home-name" placeholder="మీ పేరు రాయండి..."/>
       <button class="btn-host" onclick="goCreate()">🎬 హోస్ట్ గేమ్</button>
       <button class="btn-join"  onclick="goJoin()">🎮 గేమ్ జాయిన్ అవు</button>
     </div>
   </div>
 
-  <!-- ===== CREATE ROOM ===== -->
+  <!-- CREATE -->
   <div class="screen" id="s-create">
     <div class="game-title"><h1>vasavi GMR Kitty</h1></div>
     <div class="card">
-      <div class="section-label">🎬 కొత్త గేమ్ సెటప్</div>
-      <input type="number" id="rounds-input" placeholder="రౌండ్లు సంఖ్య (default: 15)" min="5" max="40" />
+      <div class="sec-label">🎬 గేమ్ సెటప్</div>
+      <input type="number" id="rounds-input" placeholder="రౌండ్లు సంఖ్య (default: 15)" min="5" max="40"/>
       <button class="btn-host" onclick="createRoom()">🚀 రూమ్ క్రియేట్ చేయి</button>
       <button class="btn-back" onclick="show('s-home')">← వెనక్కి</button>
     </div>
   </div>
 
-  <!-- ===== HOST LOBBY ===== -->
+  <!-- HOST LOBBY -->
   <div class="screen" id="s-host-lobby">
     <div class="game-title"><h1>vasavi GMR Kitty</h1></div>
     <div class="room-code-box">
-      <div class="rc-label">ఈ కోడ్ పంపండి</div>
+      <div class="rc-label">✨ ఈ కోడ్ అందరికీ పంపండి ✨</div>
       <div class="rc-code" id="lobby-code">-----</div>
     </div>
     <div class="card">
-      <div class="section-label">👥 జాయిన్ అయిన ప్లేయర్లు</div>
+      <div class="sec-label">👥 జాయిన్ అయిన ప్లేయర్లు</div>
       <ul class="player-list" id="lobby-players"><li><span class="waiting-msg">ప్లేయర్లు వేచి ఉన్నారు...</span></li></ul>
     </div>
     <button class="btn-start" onclick="startGame()">▶ గేమ్ స్టార్ట్ చేయి</button>
   </div>
 
-  <!-- ===== HOST GAME VIEW ===== -->
+  <!-- HOST GAME -->
   <div class="screen" id="s-host-game">
-    <div class="round-header" id="h-round">ROUND 1/15</div>
+    <div class="round-hdr" id="h-round">ROUND 1/15</div>
     <div class="emoji-box" id="h-emoji">🎭</div>
     <div class="hint-pill"><span id="h-hint">తెలుగు సినిమా</span></div>
     <div class="guesses-card">
-      <div class="guesses-card-title">✅ సరైన జవాబులు</div>
+      <div class="g-title">✅ సరైన జవాబులు</div>
       <div class="guesses-feed" id="h-feed">
         <div class="waiting-msg">జవాబుల కోసం వేచి ఉంది...</div>
       </div>
@@ -532,19 +464,19 @@
     <button class="btn-end"  onclick="endGame()">గేమ్ ముగించు</button>
   </div>
 
-  <!-- ===== JOIN SCREEN ===== -->
+  <!-- JOIN -->
   <div class="screen" id="s-join">
     <div class="game-title"><h1>vasavi GMR Kitty</h1></div>
     <div class="card">
-      <div class="section-label">🎮 గేమ్ జాయిన్ అవు</div>
-      <input type="text" id="join-name" placeholder="మీ పేరు రాయండి..." maxlength="20" />
-      <input type="text" id="join-code" placeholder="రూమ్ కోడ్ రాయండి..." maxlength="10" style="text-transform:uppercase" />
+      <div class="sec-label">🎮 గేమ్ జాయిన్ అవు</div>
+      <input type="text" id="join-name" placeholder="మీ పేరు రాయండి..."/>
+      <input type="text" id="join-code" placeholder="రూమ్ కోడ్ రాయండి..." style="text-transform:uppercase"/>
       <button class="btn-join"  onclick="joinRoom()">✅ జాయిన్ అవు</button>
       <button class="btn-back"  onclick="show('s-home')">← వెనక్కి</button>
     </div>
   </div>
 
-  <!-- ===== PLAYER LOBBY ===== -->
+  <!-- PLAYER LOBBY -->
   <div class="screen" id="s-player-lobby">
     <div class="game-title"><h1>vasavi GMR Kitty</h1></div>
     <div class="room-code-box">
@@ -552,15 +484,15 @@
       <div class="rc-code" id="pl-code">-----</div>
     </div>
     <div class="card">
-      <div class="section-label">👥 ప్లేయర్లు</div>
+      <div class="sec-label">👥 ప్లేయర్లు</div>
       <ul class="player-list" id="pl-players"><li><span class="waiting-msg">వేచి ఉంది...</span></li></ul>
       <div class="status-bar inf" style="margin-top:12px">🕐 హోస్ట్ గేమ్ స్టార్ట్ చేయడం వేచి ఉంది...</div>
     </div>
   </div>
 
-  <!-- ===== PLAYER GAME VIEW ===== -->
+  <!-- PLAYER GAME -->
   <div class="screen" id="s-player-game">
-    <div class="round-header" id="p-round">ROUND 1/15</div>
+    <div class="round-hdr" id="p-round">ROUND 1/15</div>
     <div class="score-row"><span class="score-chip">⭐ స్కోర్: <span id="p-score">0</span></span></div>
     <div class="emoji-box" id="p-emoji">🎭</div>
     <div class="hint-pill"><span id="p-hint">తెలుగు సినిమా</span></div>
@@ -568,132 +500,102 @@
     <div id="p-status"></div>
   </div>
 
-  <!-- ===== GAME OVER (shown to everyone) ===== -->
+  <!-- GAME OVER -->
   <div class="screen" id="s-gameover">
     <div class="game-title">
       <h1>vasavi GMR Kitty</h1>
-      <div class="subtitle">🏆 గేమ్ ముగిసింది! 🏆</div>
+      <div class="sub">🏆 గేమ్ ముగిసింది! అభినందనలు! 🏆</div>
     </div>
     <div class="card">
-      <div class="section-label">🏅 ఫైనల్ స్కోర్లు</div>
+      <div class="sec-label">🏅 ఫైనల్ స్కోర్లు</div>
       <ul class="final-list" id="final-list"></ul>
     </div>
-    <button class="btn-play-again" onclick="playAgain()">🔄 మళ్ళీ ఆడు</button>
+    <button class="btn-again" onclick="playAgain()">🔄 మళ్ళీ ఆడు</button>
   </div>
 
 </div>
 
 <script>
   const socket = io();
-  let myName = '', myRoom = '', isHost = false, myScore = 0;
-  let hasAnswered = false, currentOpts = [];
+  let myName='',myRoom='',isHost=false,myScore=0;
+  let hasAnswered=false,lastAnswer='';
 
-  /* ── SESSION ── */
-  const SS = {
-    save: (n,r,h) => { sessionStorage.setItem('vgk_n',n); sessionStorage.setItem('vgk_r',r); sessionStorage.setItem('vgk_h',h?'1':'0'); },
-    clear: () => { ['vgk_n','vgk_r','vgk_h'].forEach(k=>sessionStorage.removeItem(k)); },
-    get:   () => ({ n: sessionStorage.getItem('vgk_n'), r: sessionStorage.getItem('vgk_r'), h: sessionStorage.getItem('vgk_h') })
+  const SS={
+    save:(n,r,h)=>{sessionStorage.setItem('vgk_n',n);sessionStorage.setItem('vgk_r',r);sessionStorage.setItem('vgk_h',h?'1':'0');},
+    clear:()=>{['vgk_n','vgk_r','vgk_h'].forEach(k=>sessionStorage.removeItem(k));},
+    get:()=>({n:sessionStorage.getItem('vgk_n'),r:sessionStorage.getItem('vgk_r'),h:sessionStorage.getItem('vgk_h')})
   };
 
-  /* ── SCREEN ── */
-  function show(id) {
-    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
+  function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+
+  let _tt;
+  function toast(msg,ms=3200){
+    const t=document.getElementById('toast');
+    t.textContent=msg;t.classList.add('show');
+    clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),ms);
   }
 
-  /* ── TOAST ── */
-  let _toastTimer;
-  function toast(msg, ms=3000) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    clearTimeout(_toastTimer);
-    _toastTimer = setTimeout(()=>t.classList.remove('show'), ms);
+  function goCreate(){
+    const n=document.getElementById('home-name').value.trim();
+    if(!n){toast('⚠️ మీ పేరు రాయండి!');return;}
+    myName=n;show('s-create');
   }
-
-  /* ── NAV ── */
-  function goCreate() {
-    const n = document.getElementById('home-name').value.trim();
-    if (!n) { toast('⚠️ మీ పేరు రాయండి!'); return; }
-    myName = n; show('s-create');
+  function goJoin(){
+    const n=document.getElementById('home-name').value.trim();
+    if(!n){toast('⚠️ మీ పేరు రాయండి!');return;}
+    myName=n;document.getElementById('join-name').value=n;show('s-join');
   }
-  function goJoin() {
-    const n = document.getElementById('home-name').value.trim();
-    if (!n) { toast('⚠️ మీ పేరు రాయండి!'); return; }
-    myName = n;
-    document.getElementById('join-name').value = n;
-    show('s-join');
+  function createRoom(){
+    const rounds=parseInt(document.getElementById('rounds-input').value)||15;
+    isHost=true;socket.emit('create-room',{name:myName,rounds});
   }
-
-  /* ── CREATE / JOIN ── */
-  function createRoom() {
-    const rounds = parseInt(document.getElementById('rounds-input').value) || 15;
-    isHost = true;
-    socket.emit('create-room', { name: myName, rounds });
+  function joinRoom(){
+    const n=document.getElementById('join-name').value.trim();
+    const c=document.getElementById('join-code').value.trim().toUpperCase();
+    if(!n||!c){toast('⚠️ పేరు మరియు కోడ్ రాయండి!');return;}
+    myName=n;myRoom=c;socket.emit('join-room',{name:n,roomCode:c});
   }
-  function joinRoom() {
-    const n = document.getElementById('join-name').value.trim();
-    const c = document.getElementById('join-code').value.trim().toUpperCase();
-    if (!n||!c) { toast('⚠️ పేరు మరియు కోడ్ రాయండి!'); return; }
-    myName = n; myRoom = c;
-    socket.emit('join-room', { name: n, roomCode: c });
-  }
-
-  /* ── HOST CONTROLS ── */
-  function startGame() { socket.emit('start-game'); }
-  function nextRound()  {
+  function startGame(){socket.emit('start-game');}
+  function nextRound(){
     socket.emit('next-round');
-    document.getElementById('h-feed').innerHTML = '<div class="waiting-msg">జవాబుల కోసం వేచి ఉంది...</div>';
+    document.getElementById('h-feed').innerHTML='<div class="waiting-msg">జవాబుల కోసం వేచి ఉంది...</div>';
   }
-  function endGame()    { socket.emit('end-game'); }
-  function playAgain()  { SS.clear(); location.reload(); }
+  function endGame(){socket.emit('end-game');}
+  function playAgain(){SS.clear();location.reload();}
 
-  /* ── OPTIONS ── */
-  function renderOptions(opts) {
-    currentOpts = opts; hasAnswered = false;
-    const grid = document.getElementById('p-options');
-    grid.innerHTML = '';
-    opts.forEach(opt => {
-      const btn = document.createElement('button');
-      btn.className = 'opt-btn';
-      btn.textContent = opt;
-      btn.onclick = () => submitAnswer(opt);
+  function renderOptions(opts){
+    hasAnswered=false;
+    const grid=document.getElementById('p-options');
+    grid.innerHTML='';
+    opts.forEach(opt=>{
+      const btn=document.createElement('button');
+      btn.className='opt-btn';btn.textContent=opt;
+      btn.onclick=()=>{lastAnswer=opt;submitAnswer(opt);};
       grid.appendChild(btn);
     });
-    document.getElementById('p-status').innerHTML = '';
+    document.getElementById('p-status').innerHTML='';
   }
-  function submitAnswer(ans) {
-    if (hasAnswered) return;
-    hasAnswered = true;
-    socket.emit('submit-answer', { answer: ans });
-    // Disable all buttons immediately
-    document.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
+  function submitAnswer(ans){
+    if(hasAnswered)return;hasAnswered=true;
+    document.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);
+    socket.emit('submit-answer',{answer:ans});
   }
-  function highlightAnswer(chosenText, correct) {
-    document.querySelectorAll('.opt-btn').forEach(b => {
-      b.disabled = true;
-      if (b.textContent === chosenText) {
-        b.classList.add(correct ? 'correct' : 'wrong');
-      }
+  function highlightAnswer(ans,correct){
+    document.querySelectorAll('.opt-btn').forEach(b=>{
+      b.disabled=true;
+      if(b.textContent===ans)b.classList.add(correct?'correct':'wrong');
     });
   }
 
-  /* ── PLAYER LIST ── */
-  function renderPlayers(players, ulId) {
-    const ul = document.getElementById(ulId);
-    if (!players||!players.length) {
-      ul.innerHTML = '<li><span class="waiting-msg">వేచి ఉంది...</span></li>';
-      return;
-    }
-    ul.innerHTML = players.map(p =>
-      `<li><span>${p.name}</span><span class="pscore">${p.score} pts</span></li>`
-    ).join('');
+  function renderPlayers(players,ulId){
+    const ul=document.getElementById(ulId);
+    if(!players||!players.length){ul.innerHTML='<li><span class="waiting-msg">వేచి ఉంది...</span></li>';return;}
+    ul.innerHTML=players.map(p=>`<li><span>${p.name}</span><span class="pscore">${p.score} pts</span></li>`).join('');
   }
 
-  /* ── FINAL SCORES ── */
-  function renderFinal(scores) {
-    const medals = ['🥇','🥈','🥉'];
-    document.getElementById('final-list').innerHTML = scores.map((p,i) =>
+  function renderFinal(scores){
+    const medals=['🥇','🥈','🥉'];
+    document.getElementById('final-list').innerHTML=scores.map((p,i)=>
       `<li>
         <span class="medal">${medals[i]||'🎖️'}</span>
         <span class="final-name">${p.name}</span>
@@ -703,93 +605,62 @@
     show('s-gameover');
   }
 
-  /* ── SOCKET EVENTS ── */
-  socket.on('room-created', ({roomCode}) => {
-    myRoom = roomCode;
-    document.getElementById('lobby-code').textContent = roomCode;
-    SS.save(myName, roomCode, true);
-    show('s-host-lobby');
+  socket.on('room-created',({roomCode})=>{
+    myRoom=roomCode;
+    document.getElementById('lobby-code').textContent=roomCode;
+    SS.save(myName,roomCode,true);show('s-host-lobby');
   });
-
-  socket.on('player-joined', ({name, players}) => {
-    renderPlayers(players, 'lobby-players');
-    toast(`👋 ${name} జాయిన్ అయ్యారు!`);
+  socket.on('player-joined',({name,players})=>{
+    renderPlayers(players,'lobby-players');toast(`👋 ${name} జాయిన్ అయ్యారు!`);
   });
-
-  socket.on('joined', ({name, roomCode, score, isRejoin}) => {
-    myName = name; myRoom = roomCode; myScore = score||0;
-    document.getElementById('pl-code').textContent = roomCode;
-    document.getElementById('p-score').textContent = myScore;
-    SS.save(name, roomCode, false);
-    if (isRejoin) toast(`✅ రీజాయిన్! స్కోర్: ${myScore}`);
+  socket.on('joined',({name,roomCode,score,isRejoin})=>{
+    myName=name;myRoom=roomCode;myScore=score||0;
+    document.getElementById('pl-code').textContent=roomCode;
+    document.getElementById('p-score').textContent=myScore;
+    SS.save(name,roomCode,false);
+    if(isRejoin)toast(`✅ రీజాయిన్! స్కోర్: ${myScore}`);
     show('s-player-lobby');
   });
-
-  socket.on('host-rejoined', ({roomCode, players, started}) => {
-    myRoom = roomCode;
-    document.getElementById('lobby-code').textContent = roomCode;
-    renderPlayers(players, 'lobby-players');
-    toast('✅ హోస్ట్ రీజాయిన్!');
-    show(started ? 's-host-game' : 's-host-lobby');
+  socket.on('host-rejoined',({roomCode,players,started})=>{
+    myRoom=roomCode;document.getElementById('lobby-code').textContent=roomCode;
+    renderPlayers(players,'lobby-players');toast('✅ హోస్ట్ రీజాయిన్!');
+    show(started?'s-host-game':'s-host-lobby');
   });
-
-  socket.on('round-start', ({round, total, emoji, hint, options}) => {
-    if (isHost) {
-      document.getElementById('h-round').textContent = `ROUND ${round}/${total}`;
-      document.getElementById('h-emoji').textContent = emoji;
-      document.getElementById('h-hint').textContent  = hint;
-      document.getElementById('h-feed').innerHTML = '<div class="waiting-msg">జవాబుల కోసం వేచి ఉంది...</div>';
+  socket.on('round-start',({round,total,emoji,hint,options})=>{
+    if(isHost){
+      document.getElementById('h-round').textContent=`ROUND ${round}/${total}`;
+      document.getElementById('h-emoji').textContent=emoji;
+      document.getElementById('h-hint').textContent=hint;
+      document.getElementById('h-feed').innerHTML='<div class="waiting-msg">జవాబుల కోసం వేచి ఉంది...</div>';
       show('s-host-game');
     } else {
-      document.getElementById('p-round').textContent = `ROUND ${round}/${total}`;
-      document.getElementById('p-emoji').textContent = emoji;
-      document.getElementById('p-hint').textContent  = hint;
-      renderOptions(options);
-      show('s-player-game');
+      document.getElementById('p-round').textContent=`ROUND ${round}/${total}`;
+      document.getElementById('p-emoji').textContent=emoji;
+      document.getElementById('p-hint').textContent=hint;
+      renderOptions(options);show('s-player-game');
     }
   });
-
-  socket.on('correct-guess', ({name, answer}) => {
-    if (!isHost) return;
-    const feed = document.getElementById('h-feed');
-    const empty = feed.querySelector('.waiting-msg');
-    if (empty) empty.remove();
-    const div = document.createElement('div');
-    div.className = 'guess-item';
-    div.textContent = `✅ ${name} → ${answer}`;
-    feed.insertBefore(div, feed.firstChild);
+  socket.on('correct-guess',({name,answer})=>{
+    if(!isHost)return;
+    const feed=document.getElementById('h-feed');
+    const empty=feed.querySelector('.waiting-msg');if(empty)empty.remove();
+    const div=document.createElement('div');div.className='guess-item';
+    div.textContent=`✅ ${name} → ${answer}`;feed.insertBefore(div,feed.firstChild);
   });
-
-  let _lastAnswer = '';
-  socket.on('answer-result', ({correct, answer}) => {
-    if (correct) {
-      myScore += 10;
-      document.getElementById('p-score').textContent = myScore;
-      highlightAnswer(_lastAnswer, true);
-      toast('🎉 సరైన జవాబు! +10 పాయింట్లు');
-    } else {
-      highlightAnswer(_lastAnswer, false);
-      toast('❌ తప్పు జవాబు!');
-    }
+  socket.on('answer-result',({correct})=>{
+    highlightAnswer(lastAnswer,correct);
+    if(correct){myScore+=10;document.getElementById('p-score').textContent=myScore;toast('🎉 సరైన జవాబు! +10 పాయింట్లు');}
+    else toast('❌ తప్పు జవాబు!');
   });
+  socket.on('player-left',({players})=>{if(isHost)renderPlayers(players,'lobby-players');});
+  socket.on('host-disconnected',()=>toast('⚠️ హోస్ట్ డిస్కనెక్ట్ — 5 నిమిషాలు వేచి ఉంది...',7000));
+  socket.on('room-closed',()=>{toast('❌ రూమ్ క్లోజ్ అయింది.',5000);SS.clear();setTimeout(()=>location.reload(),3000);});
+  socket.on('game-over',({finalScores})=>renderFinal(finalScores));
+  socket.on('error',({message})=>toast(`❌ ${message}`));
 
-  socket.on('player-left',  ({players}) => { if (isHost) renderPlayers(players, 'lobby-players'); });
-  socket.on('host-disconnected', () => toast('⚠️ హోస్ట్ డిస్కనెక్ట్ అయ్యారు — 5 నిమిషాలు వేచి ఉంది...', 7000));
-  socket.on('room-closed',  () => { toast('❌ రూమ్ క్లోజ్ అయింది.', 5000); SS.clear(); setTimeout(()=>location.reload(), 3000); });
-  socket.on('game-over',    ({finalScores}) => renderFinal(finalScores));
-  socket.on('error',        ({message}) => toast(`❌ ${message}`));
-
-  /* ── INTERCEPT submit to capture answer text ── */
-  const _origSubmit = submitAnswer;
-  window.submitAnswer = function(ans) { _lastAnswer = ans; _origSubmit(ans); };
-
-  /* ── AUTO REJOIN ── */
-  socket.on('connect', () => {
-    const {n,r,h} = SS.get();
-    if (n && r) {
-      myName = n; myRoom = r; isHost = h==='1';
-      socket.emit('join-room', { name: n, roomCode: r });
-    }
+  socket.on('connect',()=>{
+    const {n,r,h}=SS.get();
+    if(n&&r){myName=n;myRoom=r;isHost=h==='1';socket.emit('join-room',{name:n,roomCode:r});}
   });
 </script>
 </body>

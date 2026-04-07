@@ -1,469 +1,758 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="te">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#6C2DC7">
-<title>Emoji Guess 🎉</title>
-<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;overflow:hidden;position:fixed;background:#0F0A1A}
-#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;background:linear-gradient(135deg,#1A0533 0%,#0F0A1A 40%,#0A1628 100%)}
-.orb{position:fixed;border-radius:50%;filter:blur(60px);opacity:.4;animation:orbFloat 8s ease-in-out infinite;z-index:0;pointer-events:none}
-.orb-1{width:300px;height:300px;background:#FF6B9D;top:-50px;left:-80px;animation-delay:0s}
-.orb-2{width:250px;height:250px;background:#C084FC;bottom:-40px;right:-60px;animation-delay:-3s}
-.orb-3{width:200px;height:200px;background:#FCD34D;top:40%;left:50%;animation-delay:-5s}
-.orb-4{width:180px;height:180px;background:#34D399;top:20%;right:-40px;animation-delay:-2s}
-@keyframes orbFloat{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-20px) scale(1.1)}66%{transform:translate(-20px,20px) scale(.9)}}
-#app{width:100%;height:100%;display:flex;align-items:center;justify-content:center;position:relative;z-index:1}
-.screen{display:none;position:absolute;width:100%;height:100%;max-width:480px;overflow-y:auto;padding:max(24px,env(safe-area-inset-top)) 20px max(24px,env(safe-area-inset-bottom)) 20px;opacity:0;transform:translateY(20px);animation:screenIn .4s ease forwards}
-.screen.active{display:flex;flex-direction:column;opacity:1;transform:translateY(0)}
-@keyframes screenIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-h1{font-size:2.2rem;font-weight:800;background:linear-gradient(135deg,#FF6B9D,#C084FC,#FCD34D);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px;letter-spacing:-.5px}
-h2{font-size:1.4rem;font-weight:700;color:#F0E6FF;margin-bottom:16px}
-h3{font-size:1rem;font-weight:600;color:#C084FC;margin-bottom:12px}
-.subtitle{font-size:1rem;font-weight:500;background:linear-gradient(90deg,#FCD34D,#F97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:32px;letter-spacing:2px;text-transform:uppercase}
-p{font-size:1rem;line-height:1.5;color:#B8A9D4;margin-bottom:12px}
-.emoji-display{font-size:4rem;text-align:center;margin:16px 0;padding:20px;background:rgba(255,255,255,.05);border-radius:24px;border:1px solid rgba(255,255,255,.1);animation:emojiPulse .6s ease}
-@keyframes emojiPulse{0%{transform:scale(.7);opacity:0}50%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
-.category-badge{display:inline-block;background:linear-gradient(135deg,#F97316,#FCD34D);color:#1A0533;padding:6px 18px;border-radius:30px;font-size:.8rem;font-weight:700;text-align:center;margin:0 auto 12px;text-transform:uppercase;letter-spacing:1px}
-input[type="text"],select{width:100%;padding:16px 18px;font-size:1rem;font-family:inherit;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.12);border-radius:14px;color:#F0E6FF;margin-bottom:14px;transition:all .3s ease}
-input[type="text"]:focus,select:focus{outline:none;border-color:#C084FC;background:rgba(255,255,255,.12);box-shadow:0 0 20px rgba(192,132,252,.2)}
-input::placeholder{color:rgba(192,132,252,.4)}
-select option{background:#1A0533;color:#F0E6FF}
-input[type="text"].uppercase{text-transform:uppercase;letter-spacing:4px;font-weight:700;font-size:1.3rem;text-align:center}
-label{font-weight:600;color:#C084FC;display:block;margin-bottom:8px;font-size:.9rem}
-button{padding:16px 24px;font-size:1rem;font-weight:700;border:none;border-radius:14px;cursor:pointer;transition:all .3s ease;min-height:52px;display:flex;align-items:center;justify-content:center;text-transform:uppercase;letter-spacing:1px;font-family:inherit;position:relative;overflow:hidden}
-.btn-primary{width:100%;margin-bottom:12px;background:linear-gradient(135deg,#FF6B9D,#C084FC);color:white;box-shadow:0 4px 20px rgba(192,132,252,.4)}
-.btn-primary:active:not(:disabled){transform:scale(.97)}
-.btn-primary:disabled{opacity:.4;cursor:not-allowed}
-.btn-secondary{width:100%;margin-bottom:12px;background:rgba(255,255,255,.08);color:#C084FC;border:1px solid rgba(192,132,252,.3)}
-.btn-secondary:active:not(:disabled){background:rgba(255,255,255,.14);transform:scale(.97)}
-.btn-gold{width:100%;margin-bottom:12px;background:linear-gradient(135deg,#FCD34D,#F97316);color:#1A0533;box-shadow:0 4px 20px rgba(252,211,77,.3)}
-.btn-green{background:linear-gradient(135deg,#34D399,#10B981);color:white;box-shadow:0 4px 20px rgba(52,211,153,.3)}
-.btn-red{background:rgba(239,68,68,.2);color:#F87171;border:1px solid rgba(239,68,68,.3)}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>vasavi GMR Kitty 🎉</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      min-height: 100vh;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container { max-width: 600px; width: 100%; padding: 20px; }
 
-/* Multiple choice options - all look identical */
-.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
-.option-btn{width:100%;padding:14px 10px;font-size:.9rem;font-weight:600;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.15);border-radius:14px;color:#F0E6FF;cursor:pointer;transition:all .25s ease;text-transform:none;letter-spacing:.3px;min-height:56px;text-align:center;line-height:1.3;font-family:inherit}
-.option-btn:active:not(:disabled){transform:scale(.96)}
-.option-btn:hover:not(:disabled){background:rgba(192,132,252,.15);border-color:#C084FC}
-.option-btn:disabled{opacity:.5;cursor:not-allowed}
-.option-btn.selected-correct{background:linear-gradient(135deg,rgba(52,211,153,.3),rgba(16,185,129,.2));border-color:#34D399;color:#34D399}
-.option-btn.selected-wrong{background:linear-gradient(135deg,rgba(239,68,68,.3),rgba(239,68,68,.15));border-color:#F87171;color:#F87171}
-.option-btn.reveal-correct{background:linear-gradient(135deg,rgba(52,211,153,.2),rgba(16,185,129,.1));border-color:#34D399}
+    /* SCREENS */
+    .screen { display: none; }
+    .screen.active { display: block; }
 
-.room-code-display{background:linear-gradient(135deg,#6C2DC7,#C084FC,#FF6B9D);padding:24px;border-radius:20px;text-align:center;margin:16px 0;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 8px 32px rgba(108,45,199,.4)}
-.room-code-display .code{flex:1;font-size:2rem;letter-spacing:8px;font-weight:800;color:white;font-family:'Courier New',monospace}
-.copy-btn{background:rgba(255,255,255,.25);color:white;border:2px solid rgba(255,255,255,.4);padding:10px 14px;font-size:1rem;min-width:50px;border-radius:12px;min-height:auto}
-.player-list{overflow-y:auto;margin:12px 0;max-height:180px}
-.player-item{display:flex;align-items:center;padding:12px 16px;border-radius:12px;margin-bottom:8px;background:rgba(255,255,255,.06);border-left:4px solid #C084FC}
-.player-item:nth-child(2n){border-left-color:#FF6B9D}
-.player-item:nth-child(3n){border-left-color:#FCD34D}
-.player-item:nth-child(4n){border-left-color:#34D399}
-.player-name{flex:1;font-weight:600;color:#F0E6FF}
-.player-status{font-size:.7rem;color:#C084FC;text-transform:uppercase;letter-spacing:1.5px;background:rgba(192,132,252,.15);padding:3px 8px;border-radius:6px}
-.guess-feed{background:rgba(255,255,255,.05);border-radius:16px;padding:14px;max-height:220px;overflow-y:auto;margin-bottom:12px;border:1px solid rgba(255,255,255,.08)}
-.guess-feed-label{font-size:.8rem;font-weight:700;color:#C084FC;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px}
-.guess-feed-empty{text-align:center;color:rgba(192,132,252,.4);padding:24px 0;font-size:.9rem}
-.guess-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;margin-bottom:6px;animation:guessSlideIn .4s ease}
-.guess-item.correct{background:linear-gradient(135deg,rgba(52,211,153,.15),rgba(16,185,129,.08));border:1px solid rgba(52,211,153,.3)}
-@keyframes guessSlideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
-.guess-position{font-size:1.4rem;min-width:28px;text-align:center}
-.guess-name{flex:1;font-weight:600;color:#34D399}
-.feedback{padding:12px 16px;border-radius:12px;text-align:center;font-weight:700;margin:10px 0;animation:feedbackPop .5s ease}
-.feedback.success{background:linear-gradient(135deg,rgba(52,211,153,.2),rgba(16,185,129,.1));color:#34D399;border:1px solid rgba(52,211,153,.3)}
-.feedback.error{background:rgba(239,68,68,.15);color:#F87171;border:1px solid rgba(239,68,68,.3)}
-.feedback.waiting{background:rgba(252,211,77,.1);color:#FCD34D;border:1px solid rgba(252,211,77,.3)}
-@keyframes feedbackPop{0%{transform:scale(.9);opacity:0}50%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
-.score-display{background:linear-gradient(135deg,rgba(252,211,77,.2),rgba(249,115,22,.15));border:1px solid rgba(252,211,77,.3);color:#FCD34D;padding:12px 18px;border-radius:14px;text-align:center;font-weight:700;font-size:1rem;margin:12px 0}
-.scoreboard{border-radius:16px;padding:8px;margin:14px 0}
-.scoreboard-item{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;margin-bottom:6px;border-radius:12px;background:rgba(255,255,255,.06)}
-.scoreboard-item:first-child{background:linear-gradient(135deg,rgba(252,211,77,.15),rgba(249,115,22,.1));border:1px solid rgba(252,211,77,.3)}
-.scoreboard-item:nth-child(2){background:linear-gradient(135deg,rgba(192,192,192,.1),rgba(160,160,160,.06));border:1px solid rgba(192,192,192,.2)}
-.scoreboard-item:nth-child(3){background:linear-gradient(135deg,rgba(205,127,50,.12),rgba(180,100,30,.06));border:1px solid rgba(205,127,50,.25)}
-.scoreboard-rank{font-size:1.4rem;min-width:36px;text-align:center}
-.scoreboard-name{flex:1;font-weight:600;color:#F0E6FF;margin-left:10px}
-.scoreboard-score{font-weight:800;font-size:1.1rem;background:linear-gradient(135deg,#FCD34D,#F97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.leaderboard-winner{text-align:center;margin:20px 0;animation:wiggle .8s ease-in-out}
-@keyframes wiggle{0%,100%{transform:rotate(0)}20%{transform:rotate(-6deg)}40%{transform:rotate(6deg)}60%{transform:rotate(-4deg)}80%{transform:rotate(4deg)}}
-.leaderboard-winner-emoji{font-size:5rem;margin-bottom:14px}
-.leaderboard-winner-name{font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,#FF6B9D,#C084FC);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px}
-.leaderboard-winner-score{font-size:1.2rem;font-weight:700;color:#FCD34D}
-#home{justify-content:center;align-items:center;text-align:center}
-.home-content{width:100%}
-.home-title-icon{font-size:4rem;margin-bottom:12px;animation:bounce 2s ease-in-out infinite}
-@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-#game-host{justify-content:flex-start;padding-bottom:20px}
-.game-host-content{width:100%;flex:1;overflow-y:auto}
-.round-counter{text-align:center;font-size:.9rem;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:2px;background:linear-gradient(90deg,#FF6B9D,#C084FC,#FCD34D);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.game-actions{display:flex;gap:12px;margin-top:auto;padding-top:12px}
-.game-actions button{flex:1}
-#game-player{justify-content:flex-start;padding-bottom:20px}
-.game-player-content{width:100%;flex:1;overflow-y:auto;display:flex;flex-direction:column}
-.game-input-section{margin-top:auto}
-#leaderboard{justify-content:flex-start;padding-bottom:20px}
-.leaderboard-content{width:100%;flex:1;overflow-y:auto}
-.online-counter{position:fixed;top:max(12px,env(safe-area-inset-top));right:16px;background:rgba(255,255,255,.1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.15);color:#F0E6FF;padding:6px 14px;border-radius:20px;font-size:.75rem;font-weight:600;z-index:100}
-.online-counter-dot{display:inline-block;width:7px;height:7px;background:#34D399;border-radius:50%;margin-right:5px;animation:pulse 2s ease infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.confetti{position:fixed;pointer-events:none;animation:confettiFall 3s ease-in forwards;z-index:200}
-@keyframes confettiFall{0%{opacity:1;transform:translateY(0) rotate(0) scale(1)}100%{opacity:0;transform:translateY(600px) rotate(1080deg) scale(.3)}}
-.error-message{background:rgba(239,68,68,.15);color:#F87171;padding:12px 16px;border-radius:12px;border:1px solid rgba(239,68,68,.3);margin-bottom:14px}
-.spinner{display:inline-block;width:24px;height:24px;border:3px solid rgba(192,132,252,.2);border-top-color:#C084FC;border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.star{position:fixed;pointer-events:none;z-index:0;width:3px;height:3px;background:white;border-radius:50%;animation:twinkle 3s ease-in-out infinite}
-@keyframes twinkle{0%,100%{opacity:.2;transform:scale(1)}50%{opacity:.8;transform:scale(1.5)}}
-.hint-text{text-align:center;color:#FCD34D;font-size:.85rem;margin-bottom:10px;font-style:italic}
-@media(max-height:600px){h1{font-size:1.8rem}.emoji-display{font-size:3rem;margin:10px 0;padding:14px}}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-</style>
+    /* HEADER */
+    .game-title {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .game-title h1 {
+      font-size: 2.2em;
+      font-weight: 800;
+      background: linear-gradient(135deg, #f093fb, #f5576c, #fda085);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: 2px;
+    }
+    .game-title .subtitle {
+      color: #a78bfa;
+      font-size: 0.95em;
+      margin-top: 5px;
+      letter-spacing: 1px;
+    }
+    .title-stars {
+      font-size: 1.3em;
+      margin-bottom: 5px;
+    }
+
+    /* CARDS */
+    .card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 25px;
+      backdrop-filter: blur(10px);
+      margin-bottom: 20px;
+    }
+
+    /* INPUTS */
+    input {
+      width: 100%;
+      padding: 14px 18px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 12px;
+      color: white;
+      font-size: 1em;
+      margin-bottom: 14px;
+      transition: border-color 0.2s;
+    }
+    input::placeholder { color: rgba(255,255,255,0.4); }
+    input:focus { outline: none; border-color: #f093fb; }
+
+    /* BUTTONS */
+    button {
+      width: 100%;
+      padding: 14px 20px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1em;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    button:hover { transform: translateY(-2px); }
+    button:active { transform: translateY(0); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #f093fb, #f5576c);
+      color: white;
+    }
+    .btn-secondary {
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      color: white;
+      margin-top: 10px;
+    }
+    .btn-success {
+      background: linear-gradient(135deg, #43e97b, #38f9d7);
+      color: #1a1a2e;
+      margin-top: 12px;
+    }
+    .btn-danger {
+      background: linear-gradient(135deg, #f5576c, #f093fb);
+      color: white;
+      margin-top: 10px;
+    }
+    .btn-outline {
+      background: transparent;
+      border: 2px solid rgba(255,255,255,0.3);
+      color: white;
+      margin-top: 10px;
+    }
+
+    /* ROOM CODE */
+    .room-code-display {
+      text-align: center;
+      background: rgba(240,147,251,0.1);
+      border: 2px solid #f093fb;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .room-code-display .label {
+      color: rgba(255,255,255,0.6);
+      font-size: 0.85em;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .room-code-display .code {
+      font-size: 2.5em;
+      font-weight: 900;
+      color: #f093fb;
+      letter-spacing: 8px;
+      margin-top: 5px;
+    }
+
+    /* EMOJI DISPLAY */
+    .emoji-display {
+      text-align: center;
+      font-size: 3.5em;
+      padding: 25px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      margin-bottom: 15px;
+      border: 1px solid rgba(255,255,255,0.1);
+      letter-spacing: 8px;
+    }
+
+    /* HINT BADGE */
+    .hint-badge {
+      text-align: center;
+      margin-bottom: 18px;
+    }
+    .hint-badge span {
+      background: linear-gradient(135deg, #fda085, #f6d365);
+      color: #1a1a2e;
+      padding: 8px 22px;
+      border-radius: 25px;
+      font-weight: 800;
+      font-size: 1em;
+      letter-spacing: 1px;
+    }
+
+    /* OPTIONS GRID */
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .option-btn {
+      width: 100%;
+      padding: 16px 12px;
+      background: rgba(255,255,255,0.08);
+      border: 2px solid rgba(255,255,255,0.15);
+      border-radius: 14px;
+      color: white;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+      letter-spacing: 0.5px;
+      font-family: inherit;
+      line-height: 1.3;
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-transform: none;
+    }
+    .option-btn:hover:not(:disabled) {
+      background: rgba(240,147,251,0.2);
+      border-color: #f093fb;
+      transform: translateY(-2px);
+    }
+    .option-btn.correct {
+      background: rgba(67,233,123,0.25);
+      border-color: #43e97b;
+      color: #43e97b;
+    }
+    .option-btn.incorrect {
+      background: rgba(245,87,108,0.2);
+      border-color: #f5576c;
+      color: rgba(255,255,255,0.5);
+    }
+    .option-btn:disabled { cursor: not-allowed; }
+
+    /* ROUND INFO */
+    .round-info {
+      text-align: center;
+      color: #a78bfa;
+      font-size: 0.9em;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+
+    /* SCORE */
+    .score-badge {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .score-badge span {
+      background: rgba(167,139,250,0.2);
+      border: 1px solid #a78bfa;
+      color: #a78bfa;
+      padding: 6px 18px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.9em;
+    }
+
+    /* PLAYER LIST */
+    .player-list {
+      list-style: none;
+    }
+    .player-list li {
+      padding: 10px 14px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: rgba(255,255,255,0.85);
+    }
+    .player-list li .player-name { font-weight: 600; }
+    .player-list li .player-score {
+      color: #f093fb;
+      font-weight: 700;
+    }
+
+    /* CORRECT GUESSES FEED */
+    .guesses-feed {
+      max-height: 200px;
+      overflow-y: auto;
+      padding: 5px;
+    }
+    .guess-item {
+      padding: 8px 12px;
+      background: rgba(67,233,123,0.1);
+      border-left: 3px solid #43e97b;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      font-size: 0.9em;
+      color: rgba(255,255,255,0.85);
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* SECTION TITLE */
+    .section-title {
+      color: #a78bfa;
+      font-size: 0.8em;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    /* WAITING */
+    .waiting-text {
+      text-align: center;
+      color: rgba(255,255,255,0.4);
+      font-size: 0.9em;
+      padding: 20px;
+    }
+
+    /* STATUS MESSAGE */
+    .status-msg {
+      text-align: center;
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 14px;
+      font-weight: 600;
+      font-size: 0.95em;
+    }
+    .status-msg.success { background: rgba(67,233,123,0.15); color: #43e97b; }
+    .status-msg.error { background: rgba(245,87,108,0.15); color: #f5576c; }
+    .status-msg.info { background: rgba(79,172,254,0.15); color: #4facfe; }
+
+    /* FINAL SCORES */
+    .final-scores-list { list-style: none; }
+    .final-scores-list li {
+      padding: 14px 18px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .rank-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 1em;
+      flex-shrink: 0;
+    }
+    .rank-1 { background: linear-gradient(135deg, #ffd700, #ffa500); color: #1a1a2e; }
+    .rank-2 { background: linear-gradient(135deg, #c0c0c0, #a0a0a0); color: #1a1a2e; }
+    .rank-3 { background: linear-gradient(135deg, #cd7f32, #8b4513); color: white; }
+    .rank-other { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); }
+    .final-player-name { flex: 1; font-weight: 600; font-size: 1em; }
+    .final-player-score { font-weight: 800; color: #f093fb; font-size: 1.1em; }
+
+    /* NOTIFICATION */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(30,30,60,0.95);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 12px;
+      padding: 14px 20px;
+      z-index: 9999;
+      display: none;
+      max-width: 300px;
+      font-size: 0.9em;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .notification.show { display: block; animation: slideIn 0.3s ease; }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+    /* DOTS */
+    .dots { display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2); }
+    .dot.active { background: #f093fb; }
+  </style>
 </head>
 <body>
-<div id="bg-canvas"></div>
-<div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div><div class="orb orb-4"></div>
-<div id="app">
-  <!-- HOME -->
-  <div id="home" class="screen active">
-    <div class="home-content">
-      <div class="home-title-icon">🎊</div>
-      <h1>Emoji Guess</h1>
-      <p class="subtitle">Telugu Movie Edition</p>
-      <button class="btn-primary" onclick="goToCreate()">Create Game (Host)</button>
-      <button class="btn-secondary" onclick="goToJoin()">Join Game</button>
+<div class="container">
+  <div class="notification" id="notification"></div>
+
+  <!-- ===== SCREEN 1: HOME ===== -->
+  <div class="screen active" id="screen-home">
+    <div class="game-title">
+      <div class="title-stars">✨ 🎭 ✨</div>
+      <h1>vasavi GMR Kitty</h1>
+      <div class="subtitle">తెలుగు సినిమా ఎమోజీ గేమ్</div>
+    </div>
+    <div class="card">
+      <input type="text" id="home-name" placeholder="మీ పేరు రాయండి..." maxlength="20">
+      <button class="btn-primary" onclick="goToCreate()">🏠 గేమ్ క్రియేట్ చేయి</button>
+      <button class="btn-secondary" onclick="goToJoin()">🎮 గేమ్ జాయిన్ అవు</button>
     </div>
   </div>
-  <!-- CREATE -->
-  <div id="create-screen" class="screen">
-    <div style="width:100%">
-      <h2>Create a Room ✨</h2>
-      <input type="text" id="host-name" placeholder="Your name" maxlength="20">
-      <label for="rounds-select">Number of Rounds</label>
-      <select id="rounds-select">
-        <option value="5">5 Rounds</option>
-        <option value="10" selected>10 Rounds</option>
-        <option value="15">15 Rounds</option>
-        <option value="20">20 Rounds</option>
-      </select>
-      <button class="btn-primary" onclick="createRoom()">Create Room</button>
-      <div id="room-code-section" style="display:none">
-        <div class="room-code-display">
-          <div class="code" id="room-code-display">XXXXXX</div>
-          <button class="copy-btn" id="copy-btn" onclick="copyRoomCode()">📋</button>
-        </div>
-        <p style="color:#C084FC;font-size:.9rem;text-align:center;margin-bottom:14px">Share this code with players!</p>
-        <h3>Players (<span id="player-count">1</span>)</h3>
-        <div class="player-list" id="player-list"></div>
-        <button class="btn-gold" id="start-btn" onclick="startGame()" disabled style="margin-top:14px">Start Game (2+ Players)</button>
-      </div>
-      <button class="btn-secondary" onclick="goHome()" style="margin-top:8px">Back</button>
+
+  <!-- ===== SCREEN 2: CREATE ROOM ===== -->
+  <div class="screen" id="screen-create">
+    <div class="game-title">
+      <h1>vasavi GMR Kitty</h1>
+    </div>
+    <div class="card">
+      <div class="section-title">🎬 కొత్త గేమ్ మొదలుపెట్టు</div>
+      <input type="number" id="rounds-input" placeholder="రౌండ్లు (default: 15)" min="5" max="40">
+      <button class="btn-primary" onclick="createRoom()">🚀 రూమ్ క్రియేట్ చేయి</button>
+      <button class="btn-outline" onclick="showScreen('screen-home')">← వెనక్కి</button>
     </div>
   </div>
-  <!-- JOIN -->
-  <div id="join-screen" class="screen" style="justify-content:center;align-items:center;text-align:center">
-    <div style="width:100%;max-width:350px">
-      <h2 id="join-title">Join a Game 🎮</h2>
-      <input type="text" id="room-code-input" placeholder="Room Code" maxlength="6" class="uppercase" oninput="this.value=this.value.toUpperCase()">
-      <input type="text" id="player-name" placeholder="Your name" maxlength="20">
-      <button class="btn-primary" id="join-btn" onclick="joinRoom()">Join Room</button>
-      <button class="btn-secondary" onclick="goHome()">Back to Home</button>
-      <div id="join-loading" style="display:none;text-align:center;margin-top:20px"><div class="spinner"></div><p style="margin-top:10px;color:#C084FC">Joining...</p></div>
-      <div id="join-error" class="error-message" style="display:none;margin-top:14px"></div>
-      <div id="join-waiting" style="display:none;text-align:center;margin-top:28px">
-        <div style="font-size:3.5rem;margin-bottom:14px">🎉</div>
-        <p style="font-size:1.1rem;font-weight:700;color:#34D399">You're in!</p>
-        <p style="color:#B8A9D4;margin-top:6px">Waiting for host to start...</p>
-      </div>
+
+  <!-- ===== SCREEN 3: HOST LOBBY ===== -->
+  <div class="screen" id="screen-host-lobby">
+    <div class="game-title">
+      <h1>vasavi GMR Kitty</h1>
     </div>
+    <div class="room-code-display">
+      <div class="label">రూమ్ కోడ్ షేర్ చేయి</div>
+      <div class="code" id="lobby-room-code">-----</div>
+    </div>
+    <div class="card">
+      <div class="section-title">👥 ప్లేయర్లు జాయిన్ అయ్యారు</div>
+      <ul class="player-list" id="lobby-player-list">
+        <li class="waiting-text">ప్లేయర్లు జాయిన్ అవుతున్నారు...</li>
+      </ul>
+    </div>
+    <button class="btn-success" onclick="startGame()">▶ గేమ్ స్టార్ట్ చేయి</button>
   </div>
-  <!-- HOST GAME -->
-  <div id="game-host" class="screen">
-    <div class="game-host-content">
-      <div class="round-counter" id="round-counter">Round 0/0</div>
-      <div class="emoji-display" id="host-emoji">🎉</div>
-      <div style="text-align:center"><div class="category-badge" id="host-category">Telugu Movie</div></div>
-      <div class="guess-feed">
-        <div class="guess-feed-label">Correct Guesses</div>
-        <div id="guess-feed" class="guess-feed-empty">Waiting for guesses...</div>
-      </div>
-      <div class="game-actions">
-        <button class="btn-green" onclick="nextRound()">Next Round ▶</button>
-        <button class="btn-red" onclick="endGame()">End Game</button>
+
+  <!-- ===== SCREEN 4: HOST GAME ===== -->
+  <div class="screen" id="screen-host-game">
+    <div class="round-info" id="host-round-info">ROUND 1/15</div>
+    <div class="emoji-display" id="host-emoji">🎭</div>
+    <div class="hint-badge">
+      <span id="host-hint">తెలుగు సినిమా</span>
+    </div>
+    <div class="card">
+      <div class="section-title">✅ సరైన జవాబులు</div>
+      <div class="guesses-feed" id="host-guesses-feed">
+        <div class="waiting-text">జవాబుల కోసం వేచి ఉంది...</div>
       </div>
     </div>
+    <button class="btn-success" onclick="nextRound()">తదుపరి రౌండ్ →</button>
+    <button class="btn-danger" onclick="endGame()">గేమ్ ముగించు</button>
   </div>
-  <!-- PLAYER GAME -->
-  <div id="game-player" class="screen">
-    <div class="game-player-content">
-      <div class="round-counter" id="player-round-counter">Round 0/0</div>
-      <div class="emoji-display" id="player-emoji">🎉</div>
-      <div style="text-align:center"><div class="category-badge">Telugu Movie</div></div>
-      <p class="hint-text" id="hint-text"></p>
-      <div class="score-display">Your Score: <span id="player-score">0</span> pts</div>
-      <div id="feedback" style="display:none"></div>
-      <div class="game-input-section">
-        <div class="options-grid" id="options-grid"></div>
-        <button class="btn-red" onclick="endGamePlayer()" style="width:100%;margin-top:8px;font-size:.85rem;min-height:44px">Leave Game</button>
+
+  <!-- ===== SCREEN 5: JOIN ROOM ===== -->
+  <div class="screen" id="screen-join">
+    <div class="game-title">
+      <h1>vasavi GMR Kitty</h1>
+    </div>
+    <div class="card">
+      <div class="section-title">🎮 గేమ్ జాయిన్ అవు</div>
+      <input type="text" id="join-name" placeholder="మీ పేరు రాయండి..." maxlength="20">
+      <input type="text" id="join-code" placeholder="రూమ్ కోడ్ రాయండి..." maxlength="10" style="text-transform:uppercase">
+      <button class="btn-primary" onclick="joinRoom()">✅ జాయిన్ అవు</button>
+      <button class="btn-outline" onclick="showScreen('screen-home')">← వెనక్కి</button>
+    </div>
+  </div>
+
+  <!-- ===== SCREEN 6: PLAYER LOBBY ===== -->
+  <div class="screen" id="screen-player-lobby">
+    <div class="game-title">
+      <h1>vasavi GMR Kitty</h1>
+    </div>
+    <div class="card">
+      <div class="room-code-display">
+        <div class="label">రూమ్ కోడ్</div>
+        <div class="code" id="player-lobby-code">-----</div>
       </div>
+      <div class="section-title">👥 ప్లేయర్లు</div>
+      <ul class="player-list" id="player-lobby-list">
+        <li class="waiting-text">వేచి ఉంది...</li>
+      </ul>
+      <div class="status-msg info" style="margin-top:14px">🕐 హోస్ట్ గేమ్ స్టార్ట్ చేయడం వేచి ఉంది...</div>
     </div>
   </div>
-  <!-- LEADERBOARD -->
-  <div id="leaderboard" class="screen">
-    <div class="leaderboard-content">
-      <h2 style="text-align:center;margin-bottom:20px">Game Over! 🎊</h2>
-      <div id="winner-section"></div>
-      <h3 style="margin:18px 0 10px;text-align:center">Final Scores</h3>
-      <div class="scoreboard" id="final-scoreboard"></div>
-      <button class="btn-gold" id="play-again-btn" onclick="playAgain()" style="display:none;margin-top:14px">Play Again</button>
-      <button class="btn-secondary" onclick="goHome()" style="margin-top:8px">Back to Home</button>
+
+  <!-- ===== SCREEN 7: PLAYER GAME ===== -->
+  <div class="screen" id="screen-player-game">
+    <div class="round-info" id="player-round-info">ROUND 1/15</div>
+    <div class="score-badge">
+      <span>⭐ స్కోర్: <span id="player-score-display">0</span></span>
     </div>
+    <div class="emoji-display" id="player-emoji">🎭</div>
+    <div class="hint-badge">
+      <span id="player-hint">తెలుగు సినిమా</span>
+    </div>
+    <div class="options-grid" id="player-options-grid">
+      <!-- options injected by JS -->
+    </div>
+    <div id="player-answer-status"></div>
   </div>
+
+  <!-- ===== SCREEN 8: GAME OVER (ALL USERS) ===== -->
+  <div class="screen" id="screen-gameover">
+    <div class="game-title">
+      <div class="title-stars">🏆 🎉 🏆</div>
+      <h1>vasavi GMR Kitty</h1>
+      <div class="subtitle">గేమ్ ముగిసింది!</div>
+    </div>
+    <div class="card">
+      <div class="section-title">🏅 ఫైనల్ స్కోర్లు</div>
+      <ul class="final-scores-list" id="final-scores-list">
+      </ul>
+    </div>
+    <button class="btn-primary" onclick="playAgain()">🔄 మళ్ళీ ఆడు</button>
+  </div>
+
 </div>
-<div class="online-counter"><span class="online-counter-dot"></span><span id="online-count">0</span> online</div>
+
 <script>
-(function(){for(let i=0;i<40;i++){const s=document.createElement('div');s.className='star';s.style.left=Math.random()*100+'%';s.style.top=Math.random()*100+'%';s.style.animationDelay=(Math.random()*3)+'s';s.style.animationDuration=(2+Math.random()*3)+'s';document.body.appendChild(s);}})();
+  const socket = io();
+  let myName = '';
+  let myRoomCode = '';
+  let isHost = false;
+  let myScore = 0;
+  let currentOptions = [];
+  let hasAnswered = false;
 
-const state={roomCode:null,playerName:null,isHost:false,currentScore:0,totalRounds:10,hasGuessed:false,players:[],onlinePlayers:0};
-const socketURL=window.location.origin.includes('localhost')?'http://localhost:3000':window.location.origin;
-const socket=io(socketURL,{reconnection:true,reconnectionDelay:1000,reconnectionDelayMax:5000,reconnectionAttempts:10});
+  // ─── SESSION STORAGE FOR REJOIN ───
+  function saveSession(name, roomCode, host) {
+    sessionStorage.setItem('vgk_name', name);
+    sessionStorage.setItem('vgk_room', roomCode);
+    sessionStorage.setItem('vgk_host', host ? '1' : '0');
+  }
+  function clearSession() {
+    sessionStorage.removeItem('vgk_name');
+    sessionStorage.removeItem('vgk_room');
+    sessionStorage.removeItem('vgk_host');
+  }
 
-socket.on('connect',()=>{
-  console.log('Connected');
-  // Auto-rejoin if we have saved session
-  const saved=sessionStorage.getItem('emojiSession');
-  if(saved){
-    const {roomCode,playerName,isHost}=JSON.parse(saved);
-    if(roomCode&&playerName){
-      state.roomCode=roomCode;state.playerName=playerName;state.isHost=isHost;
-      socket.emit('join-room',{roomCode,playerName},(res)=>{
-        if(res&&res.success&&res.rejoin){
-          state.currentScore=res.currentScore||0;
-          document.getElementById('player-score').textContent=state.currentScore;
-          // Wait for round-start event which server sends automatically
+  // ─── SCREEN MANAGEMENT ───
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  // ─── NOTIFICATION ───
+  function showNotification(msg, duration = 3000) {
+    const n = document.getElementById('notification');
+    n.textContent = msg;
+    n.classList.add('show');
+    setTimeout(() => n.classList.remove('show'), duration);
+  }
+
+  // ─── HOME NAVIGATION ───
+  function goToCreate() {
+    const name = document.getElementById('home-name').value.trim();
+    if (!name) { showNotification('⚠️ మీ పేరు రాయండి!'); return; }
+    myName = name;
+    showScreen('screen-create');
+  }
+  function goToJoin() {
+    const name = document.getElementById('home-name').value.trim();
+    if (!name) { showNotification('⚠️ మీ పేరు రాయండి!'); return; }
+    myName = name;
+    document.getElementById('join-name').value = name;
+    showScreen('screen-join');
+  }
+
+  // ─── CREATE ROOM ───
+  function createRoom() {
+    const rounds = parseInt(document.getElementById('rounds-input').value) || 15;
+    isHost = true;
+    socket.emit('create-room', { name: myName, rounds });
+  }
+
+  // ─── JOIN ROOM ───
+  function joinRoom() {
+    const name = document.getElementById('join-name').value.trim();
+    const code = document.getElementById('join-code').value.trim().toUpperCase();
+    if (!name || !code) { showNotification('⚠️ పేరు మరియు రూమ్ కోడ్ రాయండి!'); return; }
+    myName = name;
+    myRoomCode = code;
+    socket.emit('join-room', { name, roomCode: code });
+  }
+
+  // ─── HOST CONTROLS ───
+  function startGame() {
+    socket.emit('start-game');
+  }
+  function nextRound() {
+    socket.emit('next-round');
+    document.getElementById('host-guesses-feed').innerHTML = '<div class="waiting-text">జవాబుల కోసం వేచి ఉంది...</div>';
+  }
+  function endGame() {
+    socket.emit('end-game');
+  }
+
+  // ─── PLAYER ANSWER ───
+  function submitOption(answer, btnEl) {
+    if (hasAnswered) return;
+    socket.emit('submit-answer', { answer });
+  }
+  function renderOptions(options) {
+    currentOptions = options;
+    hasAnswered = false;
+    const grid = document.getElementById('player-options-grid');
+    grid.innerHTML = '';
+    options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.textContent = opt;
+      btn.onclick = function() { submitOption(opt, this); };
+      grid.appendChild(btn);
+    });
+    document.getElementById('player-answer-status').innerHTML = '';
+  }
+  function highlightOption(answer, isCorrect) {
+    hasAnswered = true;
+    const btns = document.querySelectorAll('.option-btn');
+    btns.forEach(btn => {
+      btn.disabled = true;
+      if (btn.textContent === answer) {
+        btn.classList.add(isCorrect ? 'correct' : 'incorrect');
+      }
+    });
+  }
+
+  // ─── FINAL SCORES ───
+  function renderFinalScores(scores) {
+    const list = document.getElementById('final-scores-list');
+    list.innerHTML = '';
+    scores.forEach((player, i) => {
+      const rank = i + 1;
+      const rankClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : 'rank-other';
+      const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <div class="rank-badge ${rankClass}">${medal}</div>
+        <div class="final-player-name">${player.name}</div>
+        <div class="final-player-score">${player.score} pts</div>
+      `;
+      list.appendChild(li);
+    });
+    showScreen('screen-gameover');
+  }
+
+  function playAgain() {
+    clearSession();
+    location.reload();
+  }
+
+  // ─── UPDATE PLAYER LIST ───
+  function updatePlayerList(players, listId) {
+    const ul = document.getElementById(listId);
+    if (!players || players.length === 0) {
+      ul.innerHTML = '<li class="waiting-text">వేచి ఉంది...</li>';
+      return;
+    }
+    ul.innerHTML = players
+      .map(p => `<li><span class="player-name">${p.name}</span><span class="player-score">${p.score} pts</span></li>`)
+      .join('');
+  }
+
+  // ─── SOCKET EVENTS ───
+
+  socket.on('room-created', ({ roomCode }) => {
+    myRoomCode = roomCode;
+    document.getElementById('lobby-room-code').textContent = roomCode;
+    saveSession(myName, roomCode, true);
+    showScreen('screen-host-lobby');
+  });
+
+  socket.on('player-joined', ({ name, players }) => {
+    updatePlayerList(players, 'lobby-player-list');
+    showNotification(`👋 ${name} జాయిన్ అయ్యారు!`);
+  });
+
+  socket.on('joined', ({ name, roomCode, score, isRejoin }) => {
+    myName = name;
+    myRoomCode = roomCode;
+    myScore = score || 0;
+    document.getElementById('player-lobby-code').textContent = roomCode;
+    document.getElementById('player-score-display').textContent = myScore;
+    saveSession(name, roomCode, false);
+    if (isRejoin) showNotification(`✅ ${name} రీజాయిన్ అయ్యారు! స్కోర్: ${myScore}`);
+    showScreen('screen-player-lobby');
+  });
+
+  socket.on('host-rejoined', ({ roomCode, players, started }) => {
+    myRoomCode = roomCode;
+    document.getElementById('lobby-room-code').textContent = roomCode;
+    updatePlayerList(players, 'lobby-player-list');
+    showNotification('✅ హోస్ట్ రీజాయిన్ అయ్యారు!');
+    showScreen(started ? 'screen-host-game' : 'screen-host-lobby');
+  });
+
+  socket.on('round-start', ({ round, total, emoji, hint, options }) => {
+    if (isHost) {
+      document.getElementById('host-round-info').textContent = `ROUND ${round}/${total}`;
+      document.getElementById('host-emoji').textContent = emoji;
+      document.getElementById('host-hint').textContent = hint;
+      document.getElementById('host-guesses-feed').innerHTML = '<div class="waiting-text">జవాబుల కోసం వేచి ఉంది...</div>';
+      showScreen('screen-host-game');
+    } else {
+      document.getElementById('player-round-info').textContent = `ROUND ${round}/${total}`;
+      document.getElementById('player-emoji').textContent = emoji;
+      document.getElementById('player-hint').textContent = hint;
+      renderOptions(options);
+      showScreen('screen-player-game');
+    }
+  });
+
+  socket.on('correct-guess', ({ name, answer, players }) => {
+    if (isHost) {
+      const feed = document.getElementById('host-guesses-feed');
+      const firstChild = feed.querySelector('.waiting-text');
+      if (firstChild) firstChild.remove();
+      const item = document.createElement('div');
+      item.className = 'guess-item';
+      item.textContent = `✅ ${name}: ${answer}`;
+      feed.insertBefore(item, feed.firstChild);
+    }
+  });
+
+  socket.on('answer-result', ({ correct, answer }) => {
+    if (correct) {
+      myScore += 10;
+      document.getElementById('player-score-display').textContent = myScore;
+      highlightOption(currentOptions.find(o => o), correct);
+      // find and highlight the correct option
+      document.querySelectorAll('.option-btn').forEach(btn => {
+        if (btn.textContent === answer || correct) {
+          // correct answer was submitted, highlight what user clicked
         }
       });
-    }
-  }
-});
-
-socket.on('room-created',(data)=>{
-  state.roomCode=data.roomCode;state.totalRounds=data.totalRounds;state.isHost=true;
-  sessionStorage.setItem('emojiSession',JSON.stringify({roomCode:data.roomCode,playerName:state.playerName,isHost:true}));
-  document.getElementById('room-code-display').textContent=data.roomCode;
-  document.getElementById('room-code-section').style.display='block';
-  updatePlayerList([state.playerName]);
-});
-
-socket.on('player-joined',(data)=>{
-  state.players=data.players;
-  updatePlayerList(data.players);
-  updateOnlineCount(data.onlinePlayers);
-});
-
-socket.on('round-start',(data)=>{
-  state.hasGuessed=data.alreadyGuessed||false;
-  if(state.isHost){
-    showScreen('game-host');
-    document.getElementById('round-counter').textContent='Round '+data.roundNumber+'/'+data.totalRounds;
-    document.getElementById('host-emoji').textContent=data.emoji;
-    document.getElementById('host-category').textContent=data.category||'Telugu Movie';
-    document.getElementById('host-category').style.background='linear-gradient(135deg,#F97316,#FCD34D)';
-    document.getElementById('guess-feed').innerHTML='<div class="guess-feed-empty">Waiting for guesses...</div>';
-  } else {
-    showScreen('game-player');
-    document.getElementById('player-round-counter').textContent='Round '+data.roundNumber+'/'+data.totalRounds;
-    document.getElementById('player-emoji').textContent=data.emoji;
-    document.getElementById('hint-text').textContent='💡 '+data.hint;
-    document.getElementById('feedback').style.display='none';
-    renderOptions(data.options,state.hasGuessed);
-  }
-});
-
-socket.on('guess-result',(data)=>{
-  if(data.isCorrect){
-    vibrate(200);playSound('correct');
-    state.currentScore+=data.points;
-    document.getElementById('player-score').textContent=state.currentScore;
-    showFeedback(true,'+'+data.points+' pts! '+getPositionEmoji(data.position));
-    state.hasGuessed=true;
-    highlightOption(true);
-  } else {
-    playSound('error');
-    showFeedback(false,'Wrong! Better luck next round 😅');
-    state.hasGuessed=true;
-    highlightOption(false);
-  }
-});
-
-socket.on('round-update',(data)=>{
-  if(state.isHost){
-    const feedDiv=document.getElementById('guess-feed');
-    if(feedDiv.querySelector('.guess-feed-empty'))feedDiv.innerHTML='';
-    const el=document.createElement('div');
-    el.className='guess-item correct';
-    el.innerHTML='<div class="guess-position">'+getPositionEmoji(data.position)+'</div><div class="guess-name">'+escapeHtml(data.playerName)+'</div><div>✅</div>';
-    feedDiv.appendChild(el);feedDiv.scrollTop=feedDiv.scrollHeight;
-  }
-});
-
-socket.on('round-end',(data)=>{
-  if(state.isHost){
-    setTimeout(()=>{
-      const badge=document.getElementById('host-category');
-      badge.textContent='Answer: '+data.answer;
-      badge.style.background='linear-gradient(135deg,#34D399,#10B981)';
-    },300);
-  }
-});
-
-socket.on('game-over',(data)=>showLeaderboard(data.leaderboard));
-socket.on('error',(data)=>showJoinError(data.message));
-socket.on('online-count',(n)=>updateOnlineCount(n));
-socket.on('host-disconnected',(data)=>{
-  showJoinError(data.message||'Host disconnected.');
-});
-
-// Current selected option tracking
-let _selectedOption=null;
-let _correctAnswer=null;
-
-function renderOptions(options,disabled){
-  _selectedOption=null;
-  const grid=document.getElementById('options-grid');
-  grid.innerHTML='';
-  options.forEach(opt=>{
-    const btn=document.createElement('button');
-    btn.className='option-btn';
-    btn.textContent=opt;
-    btn.disabled=disabled;
-    if(!disabled){
-      btn.onclick=()=>submitOption(opt,btn,options);
-    }
-    grid.appendChild(btn);
-  });
-}
-
-function submitOption(guess,btn,options){
-  if(state.hasGuessed)return;
-  _selectedOption=btn;
-  document.querySelectorAll('.option-btn').forEach(b=>{b.disabled=true;});
-  socket.emit('submit-guess',{roomCode:state.roomCode,guess:guess.toLowerCase()});
-}
-
-function highlightOption(isCorrect){
-  if(_selectedOption){
-    _selectedOption.classList.add(isCorrect?'selected-correct':'selected-wrong');
-  }
-}
-
-function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  const sc=document.getElementById(id);
-  if(sc)sc.classList.add('active');
-}
-
-function goHome(){
-  sessionStorage.removeItem('emojiSession');
-  state.roomCode=null;state.playerName=null;state.isHost=false;state.currentScore=0;
-  document.getElementById('join-waiting').style.display='none';
-  document.getElementById('join-btn').style.display='';
-  document.getElementById('room-code-input').style.display='';
-  document.getElementById('player-name').style.display='';
-  document.getElementById('join-error').style.display='none';
-  document.querySelector('#join-screen .btn-secondary').style.display='';
-  showScreen('home');
-}
-
-function goToCreate(){document.getElementById('host-name').value='';document.getElementById('room-code-section').style.display='none';showScreen('create-screen');}
-function goToJoin(){document.getElementById('room-code-input').value='';document.getElementById('player-name').value='';document.getElementById('join-error').style.display='none';document.getElementById('join-loading').style.display='none';document.getElementById('join-waiting').style.display='none';showScreen('join-screen');}
-
-function createRoom(){
-  const name=document.getElementById('host-name').value.trim();
-  if(!name){showJoinError('Please enter your name');return;}
-  state.playerName=name;state.totalRounds=parseInt(document.getElementById('rounds-select').value);
-  socket.emit('create-room',{playerName:name,totalRounds:state.totalRounds});
-}
-
-function joinRoom(){
-  const code=document.getElementById('room-code-input').value.trim().toUpperCase();
-  const name=document.getElementById('player-name').value.trim();
-  if(!code||code.length!==6){showJoinError('Enter a valid 6-character room code');return;}
-  if(!name){showJoinError('Please enter your name');return;}
-  state.playerName=name;state.roomCode=code;
-  document.getElementById('join-loading').style.display='block';
-  document.getElementById('join-error').style.display='none';
-  socket.emit('join-room',{roomCode:code,playerName:name},(res)=>{
-    document.getElementById('join-loading').style.display='none';
-    if(res&&res.success){
-      state.totalRounds=res.totalRounds;
-      state.currentScore=res.currentScore||0;
-      sessionStorage.setItem('emojiSession',JSON.stringify({roomCode:code,playerName:name,isHost:false}));
-      updatePlayerList(res.players||[]);
-      document.getElementById('join-btn').style.display='none';
-      document.getElementById('room-code-input').style.display='none';
-      document.getElementById('player-name').style.display='none';
-      document.querySelector('#join-screen .btn-secondary').style.display='none';
-      document.getElementById('join-waiting').style.display='block';
-      document.getElementById('player-score').textContent=state.currentScore;
-      if(res.rejoin){document.getElementById('join-title').textContent='Rejoined! 🔄';}
+      showNotification('🎉 సరైన జవాబు! +10 పాయింట్లు');
     } else {
-      showJoinError(res?.error||'Failed to join room');
+      showNotification('❌ తప్పు జవాబు!');
+    }
+    // Properly highlight based on result
+    const btns = document.querySelectorAll('.option-btn');
+    btns.forEach(btn => { btn.disabled = true; });
+    hasAnswered = true;
+  });
+
+  socket.on('player-left', ({ name, players }) => {
+    if (isHost) updatePlayerList(players, 'lobby-player-list');
+  });
+
+  socket.on('host-disconnected', () => {
+    showNotification('⚠️ హోస్ట్ డిస్కనెక్ట్ అయ్యారు. 5 నిమిషాల వేచి ఉంది...', 5000);
+  });
+
+  socket.on('room-closed', () => {
+    showNotification('❌ రూమ్ క్లోజ్ అయింది.', 5000);
+    clearSession();
+    setTimeout(() => location.reload(), 3000);
+  });
+
+  socket.on('game-over', ({ finalScores }) => {
+    renderFinalScores(finalScores);
+  });
+
+  socket.on('error', ({ message }) => {
+    showNotification(`❌ ${message}`);
+  });
+
+  // ─── AUTO REJOIN ON RECONNECT ───
+  socket.on('connect', () => {
+    const savedName = sessionStorage.getItem('vgk_name');
+    const savedRoom = sessionStorage.getItem('vgk_room');
+    const savedHost = sessionStorage.getItem('vgk_host');
+    if (savedName && savedRoom) {
+      myName = savedName;
+      myRoomCode = savedRoom;
+      isHost = savedHost === '1';
+      if (isHost) {
+        socket.emit('join-room', { name: savedName, roomCode: savedRoom });
+      } else {
+        socket.emit('join-room', { name: savedName, roomCode: savedRoom });
+      }
     }
   });
-}
-
-function startGame(){
-  if(state.players.length<2){showJoinError('Need at least 2 players');return;}
-  socket.emit('start-game',{roomCode:state.roomCode});
-}
-
-function nextRound(){socket.emit('next-round',{roomCode:state.roomCode});}
-function endGame(){socket.emit('end-game',{roomCode:state.roomCode});}
-function endGamePlayer(){sessionStorage.removeItem('emojiSession');socket.disconnect();goHome();}
-function playAgain(){sessionStorage.removeItem('emojiSession');socket.connect();goHome();}
-
-function updatePlayerList(players){
-  state.players=players;
-  const colors=['#C084FC','#FF6B9D','#FCD34D','#34D399','#60A5FA','#F97316'];
-  const el=document.getElementById('player-list');
-  if(el)el.innerHTML=players.map((n,i)=>'<div class="player-item" style="border-left-color:'+colors[i%colors.length]+'"><span class="player-name">'+escapeHtml(n)+'</span><span class="player-status">'+(i===0?'Host':'Player')+'</span></div>').join('');
-  const cnt=document.getElementById('player-count');if(cnt)cnt.textContent=players.length;
-  const btn=document.getElementById('start-btn');if(btn){btn.disabled=players.length<2;if(players.length>=2)btn.textContent='Start Game ('+players.length+' Players)';}
-}
-
-function showFeedback(ok,msg){
-  const el=document.getElementById('feedback');
-  el.className='feedback '+(ok?'success':'error');
-  el.textContent=(ok?'✅ ':'❌ ')+msg;
-  el.style.display='block';
-}
-
-function showJoinError(msg){
-  const el=document.getElementById('join-error');
-  if(el){el.textContent=msg;el.style.display='block';}
-}
-
-function showLeaderboard(lb){
-  showScreen('leaderboard');
-  if(lb.length>0){
-    const w=lb[0];
-    document.getElementById('winner-section').innerHTML='<div class="leaderboard-winner"><div class="leaderboard-winner-emoji">🏆</div><div class="leaderboard-winner-name">'+escapeHtml(w.name)+'</div><div class="leaderboard-winner-score">'+w.score+' points</div></div>';
-    createConfetti();
-  }
-  const medals=['🥇','🥈','🥉'];
-  document.getElementById('final-scoreboard').innerHTML=lb.map((e,i)=>'<div class="scoreboard-item"><div class="scoreboard-rank">'+(medals[i]||(i+1)+'.')+'</div><div class="scoreboard-name">'+escapeHtml(e.name)+'</div><div class="scoreboard-score">'+e.score+'</div></div>').join('');
-  if(state.isHost)document.getElementById('play-again-btn').style.display='block';
-}
-
-function updateOnlineCount(n){state.onlinePlayers=n;document.getElementById('online-count').textContent=n;}
-function copyRoomCode(){navigator.clipboard.writeText(state.roomCode).then(()=>{const b=document.getElementById('copy-btn');b.textContent='✓';setTimeout(()=>{b.textContent='📋';},2000);});}
-function getPositionEmoji(pos){return['🥇','🥈','🥉'][pos-1]||'#'+pos;}
-function vibrate(ms){if(navigator.vibrate)navigator.vibrate(ms);}
-function playSound(type){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();const osc=ctx.createOscillator();const gain=ctx.createGain();osc.connect(gain);gain.connect(ctx.destination);if(type==='correct'){osc.frequency.setValueAtTime(600,ctx.currentTime);osc.frequency.linearRampToValueAtTime(1200,ctx.currentTime+.15);gain.gain.setValueAtTime(.25,ctx.currentTime);gain.gain.linearRampToValueAtTime(0,ctx.currentTime+.25);osc.start();osc.stop(ctx.currentTime+.25);}else{osc.frequency.setValueAtTime(400,ctx.currentTime);osc.frequency.linearRampToValueAtTime(200,ctx.currentTime+.12);gain.gain.setValueAtTime(.15,ctx.currentTime);gain.gain.linearRampToValueAtTime(0,ctx.currentTime+.15);osc.start();osc.stop(ctx.currentTime+.15);}}catch(e){}}
-function createConfetti(){const colors=['#FF6B9D','#C084FC','#FCD34D','#34D399','#60A5FA','#F97316'];for(let i=0;i<80;i++){const c=document.createElement('div');c.className='confetti';const sz=6+Math.random()*8;c.style.left=Math.random()*100+'%';c.style.top='-10px';c.style.width=sz+'px';c.style.height=sz+'px';c.style.background=colors[Math.floor(Math.random()*colors.length)];c.style.animationDelay=(Math.random()*1.5)+'s';c.style.animationDuration=(2+Math.random()*2)+'s';c.style.borderRadius='50%';document.body.appendChild(c);setTimeout(()=>c.remove(),4500);}}
-function escapeHtml(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML;}
-document.body.addEventListener('touchmove',(e)=>{if(e.touches.length>1)e.preventDefault();},{passive:false});
 </script>
 </body>
 </html>
